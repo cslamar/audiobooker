@@ -1,0 +1,22 @@
+;FFMETADATA1
+title={{ .Title}}
+album={{ .Title}}
+artist={{ .Author}}
+{{- if .Date}}
+date={{ .Date}}
+{{- end}}
+{{- if .SortSlug}}
+sort_name={{ .SortSlug}}
+sort_album={{ .SortSlug}}
+{{- end}}
+{{- if .Narrator}}
+composer={{ .Narrator}}
+{{- end}}
+genre={{if .Genre}}{{ .Genre}}{{else}}Audiobooks{{end}}
+{{- range .Chapters}}
+[CHAPTER]
+TIMEBASE=1/1000
+START={{ .StartMs}}
+END={{ .EndMs}}
+title={{ .Title}}
+{{- end}}
