@@ -1,0 +1,15 @@
+name: Audiobooker Tests
+run-name: Audiobooker pre-merge tests
+on:
+  pull_request:
+jobs:
+  container-test-job:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cslamar/audiobooker-test-data:latest
+      options: --cpus 1
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Run test suites
+        run: make test
