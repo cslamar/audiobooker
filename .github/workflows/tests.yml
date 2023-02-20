@@ -8,9 +8,9 @@ jobs:
     container:
       image: ghcr.io/cslamar/audiobooker-test-data:latest
       options: --cpus 1
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.github_token }}
+#      credentials:
+#        username: ${{ github.actor }}
+#        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
