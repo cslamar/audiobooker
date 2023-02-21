@@ -4,7 +4,7 @@ Below are a few examples, with summaries, on how to use Audiobooker
 
 **Note:** `path-pattern` in `batch` works different from `bind`.  In `batch` the pattern starts **from** the path specified in `source-files-root`
 
-### Split Into Fixed Length Chapters (with patterned output directory)
+## Split Into Fixed Length Chapters (with patterned output directory)
 
 ```shell
 audiobooker bind split-chapters \
@@ -14,7 +14,7 @@ audiobooker bind split-chapters \
   --source-files-path "./media-src/Carl von Clausewitz/On War/1/Volume 1"
 ```
 
-### Create Audiobook From Structured Layout Compiling Chapters From Media Tags
+## Create Audiobook From Structured Layout Compiling Chapters From Media Tags
 
 ```shell
 audiobooker bind from-tags \
@@ -23,7 +23,7 @@ audiobooker bind from-tags \
   --source-files-path "./media-src/1903/Carl von Clausewitz/On War"
 ```
 
-### Create Audiobook From Structured Layout creating one chapter per input file
+## Create Audiobook From Structured Layout creating one chapter per input file
 
 ```shell
 audiobooker bind files \
@@ -32,7 +32,7 @@ audiobooker bind files \
   --source-files-path "./media-src/1903/Carl von Clausewitz/On War"
 ```
 
-### Create Audiobook From Structured Layout creating one chapter per input file with custom output path and filename
+## Create Audiobook From Structured Layout creating one chapter per input file with custom output path and filename
 
 ```shell
 audiobooker bind files \
@@ -44,7 +44,7 @@ audiobooker bind files \
 
 Would create the following directories and filename: `./output/Carl von Clausewitz/1903/On War/Carl von Clausewitz - On War.m4b`
 
-### Batch a Collection of Books at Once, with One Chapter per File
+## Batch a Collection of Books at Once, with One Chapter per File
 
 ```shell
 audiobooker batch files \

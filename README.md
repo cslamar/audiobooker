@@ -2,6 +2,8 @@
 
 Golang audiobook creation tool with support for tagging based on directory structure, transcoding concurrency, and more!
 
+## Prerequisites
+
 ### Installation Requirements
 
 * ffmpeg (developed against `5.1.x`)
@@ -14,7 +16,7 @@ Golang audiobook creation tool with support for tagging based on directory struc
 
 The `audiobooker` command has a number of sub-commands for various actions
 
-* Documentation around command and subcommands can be found [here](docs/README.md)
+* Documentation around command and subcommands can be found [here](docs)
 * Usage examples can be found [here](EXAMPLES.md) 
 
 ### Environment Variables for Commands
