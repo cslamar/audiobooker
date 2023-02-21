@@ -1,5 +1,7 @@
 # Audiobooker
 
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/cslamar/824d4b8e587def8656b0f5920e743467/raw/coverage.json)
+
 Golang audiobook creation tool with support for tagging based on directory structure, transcoding concurrency, and more!
 
 ## Prerequisites

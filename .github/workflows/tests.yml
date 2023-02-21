@@ -12,17 +12,4 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
       - name: Run test suites with coverage output
-        run: make test-with-output
-      - name: Parse coverage data
-        run: cat /tmp/percentage >> $GITHUB_ENV
-      - name: Create coverage badge
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.BADGE_GIST_SECRET }}
-          gistID: 824d4b8e587def8656b0f5920e743467
-          filename: coverage.json
-          label: Coverage
-          message: ${{ env.COVERAGE_PERCENT }}%
-          valColorRange: ${{ env.COVERAGE_PERCENT }}
-          maxColorRange: 100
-          minColorRange: 0
+        run: make test
