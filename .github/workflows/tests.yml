@@ -8,11 +8,17 @@ jobs:
     container:
       image: ghcr.io/cslamar/audiobooker-test-data:latest
       options: --cpus 1
-#      credentials:
-#        username: ${{ github.actor }}
-#        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
       - name: Run test suites
         run: make test
+      - name: Create Badges
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.BADGE_GIST_SECRET }}
+          gistID: 824d4b8e587def8656b0f5920e743467
+          filename: test.json
+          label: Hello
+          message: World
+          color: orange
