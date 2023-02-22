@@ -16,7 +16,7 @@ import (
 var batchCmd = &cobra.Command{
 	Use:   "batch",
 	Short: "Perform batched operations on a pattern of directories for multiple audiobook binding",
-	Long:  `TODO`, // TODO
+	Long:  `The batch command, and its sub-commands, will perform actions to create multiple audiobooks based on a collection of structured directories.  The way that the audiobooks are created is based on the pattern of the directory structure and sub-commands selected.  This is used when you want to convert a larger collection of books.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("batch called")
 		return nil

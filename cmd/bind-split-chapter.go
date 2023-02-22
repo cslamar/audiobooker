@@ -18,7 +18,11 @@ import (
 var splitChaptersCmd = &cobra.Command{
 	Use:   "split-chapters",
 	Short: "Splits a single audio file into chapters using a fixed length",
-	Long:  `A longer description of the bind process.`, // TODO
+	Long: `Bind split-chapters will split a single file into a chapter marked audiobook file based on two options.  
+
+First a static number (in minutes) can be passed in to make hard chapter marks at the specified duration.  Each mark will result in chapter metadata being created at those increments with the name "Chapter X" (where X in the index).
+
+The other way that split-chapters can be used is if the existing file already has metadata embedded.  Passing in the '--use-embedded' flag will use that metadata when creating the chapters for the new audiobook file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting split chatper bind\n\n")
 		processStart := time.Now()

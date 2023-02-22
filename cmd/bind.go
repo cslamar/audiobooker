@@ -14,7 +14,7 @@ import (
 var bindCmd = &cobra.Command{
 	Use:   "bind",
 	Short: "Combine multiple audio files into an M4B audiobook file",
-	Long:  `A longer description of the bind process.`, // TODO
+	Long:  `The bind command, and its sub-commands, will perform actions to create a single audiobook.  This is usually used when you want to create a one off book, or aren't working through a full collection.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
