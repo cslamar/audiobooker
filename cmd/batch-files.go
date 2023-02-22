@@ -21,7 +21,7 @@ import (
 var batchFilesCmd = &cobra.Command{
 	Use:   "files",
 	Short: `Bind audiobook using each file as a chapter`,
-	Long:  `TODO`, // TODO
+	Long:  `Bind audiobook using each file as a chapter using either the source audio filename as the chapter name, or the source audio file's "title" metadata tag as the chapter name.'`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting batch by filename\n\n")
 		processStart := time.Now()

@@ -20,7 +20,7 @@ import (
 var batchFromTagsCmd = &cobra.Command{
 	Use:   "from-tags",
 	Short: `Bind audiobook combining title tag of each file as chapter names`,
-	Long:  `TODO`, // TODO
+	Long:  `Bind audiobook combining title tag of each file as chapter names in the compiled audiobook`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Printf("starting batch from tags\n\n")
 		processStart := time.Now()
