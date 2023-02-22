@@ -283,7 +283,7 @@ func TranscodeSourceFiles(config *Config) error {
 
 				log.Debugln("converted to:", inputFile.destFile)
 				completedTranscode++
-				fmt.Printf("%d%%...", int((float64(completedTranscode) / float64(len(conversionFiles)) * 100)))
+				fmt.Printf("...%d%%", int((float64(completedTranscode) / float64(len(conversionFiles)) * 100)))
 			}
 		}()
 	}

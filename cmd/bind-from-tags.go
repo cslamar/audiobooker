@@ -16,7 +16,7 @@ import (
 var bindFromTagsCmd = &cobra.Command{
 	Use:   "from-tags",
 	Short: `Bind audiobook combining title tag of each file as chapter names`,
-	Long:  `Bind audiobook combining title tag of each file as chapter names`, // TODO
+	Long:  `Bind audiobook combining title tag of each file as chapter names in the compiled audiobook`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Starting bind from tags\n\n")
 		processStart := time.Now()
