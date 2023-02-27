@@ -18,8 +18,8 @@ Golang audiobook creation tool with support for tagging based on directory struc
 
 The `audiobooker` command has a number of sub-commands for various actions
 
-* Documentation around command and subcommands can be found [here](docs)
-* Usage examples can be found [here](EXAMPLES.md) 
+* Documentation around command and subcommands can be found [here](docs/cli-usage)
+* Usage examples can be found [here](docs/EXAMPLES.md) 
 
 ### Environment Variables for Commands
 
@@ -37,37 +37,7 @@ Configs can be set via environment variables.  The following are the currently s
 
 ### Paths and Tagging
 
-Tags are added either via the `--path-pattern` flag or `PATH_PATTERN` environment variable.  Supported path patterns are:
-
-```text
-AudioFile   = "%f"
-Author      = "%a"
-Genre       = "%g"
-Narrator    = "%n"
-ReleaseDate = "%y"
-Series      = "%s"
-SeriesPart  = "%p"
-Title       = "%t"
-```
-
-The `Author` and `Title` are the only two that are currently required.
-
-When structuring a `path-pattern` you must supply any hardcoded paths that aren't matched to a metadata parsing.
-
-**Example Path**
-
-```text
-./media-src/files/Carl von Clausewitz/On War/1/Volume 1
-```
-
-**Example `path-pattern` string**
-
-```text
-./media-src/files/%a/%s/%p/%t
-```
-
-**Note:** `path-pattern` in `batch` works different from `bind`.  In `batch` the pattern starts **from** the path specified in `source-files-root`
-
+Audiobooker is able to parse the structure of the directories that hold the source audiobook files and embed that data in the final audiobook file.  This is done using a series of path pattern placeholders, more information can be found [here](docs/path-patterns.md).
 ### Other bits
 
 Automatic cover art will be applied if one of the following files are found in the media root: `cover.jpg`, `cover.png`, `folder.jpg`, `folder.png`

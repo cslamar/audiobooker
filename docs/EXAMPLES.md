@@ -1,8 +1,8 @@
-# Audioboker Command Examples
+# Audiobooker Command Examples
 
-Below are a few examples, with summaries, on how to use Audiobooker
+Below are a few examples, with summaries, on how to use Audiobooker.
 
-**Note:** `path-pattern` in `batch` works different from `bind`.  In `batch` the pattern starts **from** the path specified in `source-files-root`
+**Note:** `path-pattern` in `batch` works different from `bind`.  In `batch` the pattern starts **from** the path specified in `--source-files-root`
 
 ## Split Into Fixed Length Chapters (with patterned output directory)
 
