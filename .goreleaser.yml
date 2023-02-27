@@ -1,0 +1,82 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+# before:
+#   hooks:
+#     # You may remove this if you don't use go modules.
+#     - go mod tidy
+builds:
+  - id: audiobooker-linux-windows
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+  - id: audiobooker-macos
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    hooks:
+      post: /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
+
+archives:
+  - id: windows-linux
+    builds:
+      - audiobooker-linux-windows
+    format: tar.gz
+    name_template: '{{ .ProjectName }}_{{ .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+  - id: macos
+    builds:
+      - audiobooker-macos
+    # use zip for macos archives
+    format: zip
+    name_template: '{{ .ProjectName }}_macos_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+signs:
+  - id: macos
+    artifacts: archive
+    ids:
+      - macos
+    signature: "${artifact}"
+    output: true
+    cmd: xcrun
+    args:
+      [
+        "notarytool",
+        "submit",
+        '${artifact}',
+        "--apple-id",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_APPLE_ID }}",
+        "--password",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_PWD }}",
+        "--team-id",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_TEAM_ID }}",
+        "--progress",
+        "--wait",
+      ]
+
+release:
+  github:
+    owner: cslamar
+    name: audiobooker

@@ -5,3 +5,4 @@ scratch-dir*
 .env*
 test-data
 docker-compose.yml
+dist/
