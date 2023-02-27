@@ -4,6 +4,7 @@ clean: ## Clean temp directories
 	@echo "Cleaning up temp dirs"
 	rm -rf scratch-dir*
 	rm -rf ./ab/output/*
+	rm -rf dist/
 
 cli-docs: ## Generate auto-generate cli repository documentation
 	@echo "Generating cli-docs"
