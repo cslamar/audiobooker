@@ -5,6 +5,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"github.com/cslamar/mp4tag"
 	"github.com/dhowden/tag"
 	log "github.com/sirupsen/logrus"
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
@@ -251,4 +252,63 @@ func (b *Book) ExtractChapters(config Config) error {
 		return err
 	}
 	return nil
+}
+
+// WriteTags overrides global metadata with data from Book
+func (b *Book) WriteTags(filename string) error {
+	// generate a sort slug if available
+	b.generateSortSlug()
+
+	tags := mp4tag.Tags{}
+
+	// filter present metadata
+	if b.Title != "" {
+		tags.Album = b.Title
+	}
+	if b.Author != "" {
+		tags.Artist = b.Author
+	}
+	if b.Date != nil {
+		strDate, err := strconv.Atoi(*b.Date)
+		if err != nil {
+			log.Errorln(err)
+			return errors.New("error converting year to number")
+		}
+		tags.Year = strDate
+	}
+	if b.Genre != nil {
+		tags.Genre = *b.Genre
+	}
+	if b.SortSlug != nil {
+		tags.TitleSort = *b.SortSlug
+		tags.AlbumSort = *b.SortSlug
+	}
+	if b.Narrator != nil {
+		tags.Composer = *b.Narrator
+	}
+
+	// open target file for tagging
+	outputFile, err := mp4tag.Open(filename)
+	if err != nil {
+		log.Errorln(err)
+		return errors.New("error opening file for tagging")
+	}
+	defer outputFile.Close()
+
+	// write available tags
+	if err := outputFile.Write(&tags); err != nil {
+		log.Errorln(err)
+		return errors.New("error writing tags to file")
+	}
+
+	return nil
+}
+
+// generateSortSlug parses metadata for sort metadata
+func (b *Book) generateSortSlug() {
+	// if series name and part are present, generate Sort property
+	if b.seriesName != nil && b.seriesPart != nil {
+		b.SortSlug = new(string)
+		*b.SortSlug = fmt.Sprintf("%s - %d", *b.seriesName, *b.seriesPart)
+	}
 }
