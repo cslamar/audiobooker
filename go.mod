@@ -6,6 +6,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/cslamar/mp4tag v0.0.0-20230123200245-1195b67b7675
 	github.com/dhowden/tag v0.0.0-20220618230019-adf36e896086
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5

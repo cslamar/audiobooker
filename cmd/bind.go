@@ -115,10 +115,11 @@ func generateBindOpts(config *audiobooker.Config, flags *pflag.FlagSet) error {
 	if config.Jobs <= 0 {
 		return errors.New("jobs must be greater than 0")
 	}
-	// validate output destination in config struct
-	if config.OutputFileDest == "" {
-		return errors.New("output-directory must not be empty")
-	}
+
+	// validate output destination in config struct TODO find a place for this validation that isn't global
+	//if config.OutputFileDest == "" {
+	//	return errors.New("output-directory must not be empty")
+	//}
 
 	return nil
 }

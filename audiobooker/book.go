@@ -5,6 +5,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"github.com/cslamar/mp4tag"
 	"github.com/dhowden/tag"
 	log "github.com/sirupsen/logrus"
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
@@ -12,6 +13,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -250,5 +252,69 @@ func (b *Book) ExtractChapters(config Config) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// generateSortSlug parses metadata for sort metadata
+func (b *Book) generateSortSlug() {
+	// if series name and part are present, generate Sort property
+	if b.seriesName != nil && b.seriesPart != nil {
+		b.SortSlug = new(string)
+		*b.SortSlug = fmt.Sprintf("%s - %d", *b.seriesName, *b.seriesPart)
+	}
+}
+
+// WriteTags overrides global metadata with data from Book
+func (b *Book) WriteTags(filename string) error {
+	// generate SortSlug if present
+	b.generateSortSlug()
+
+	tags := mp4tag.Tags{}
+
+	// parse fields of Book
+	fields := reflect.VisibleFields(reflect.TypeOf(*b))
+
+	// loop through all Book fields looking for values
+	for _, field := range fields {
+		switch field.Name {
+		case "Author":
+			tags.Artist = b.Author
+		case "Date":
+			if b.Date != nil {
+				if date, err := strconv.Atoi(*b.Date); err != nil {
+					log.Warnf("invalid date entry: %v", err)
+				} else {
+					tags.Year = date
+				}
+			}
+		case "Genre":
+			if b.Genre != nil {
+				tags.Genre = *b.Genre
+			}
+		case "Narrator":
+			if b.Narrator != nil {
+				tags.Composer = *b.Narrator
+			}
+		case "SortSlug":
+			if b.SortSlug != nil {
+				tags.TitleSort = *b.SortSlug
+				tags.AlbumSort = *b.SortSlug
+			}
+		case "Title":
+			tags.Album = b.Title
+		}
+	}
+
+	// open and write to tagging target file
+	targetFile, err := mp4tag.Open(filename)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error opening %s for tagging: %v", filename, err))
+	}
+	defer targetFile.Close()
+
+	if err := targetFile.Write(&tags); err != nil {
+		return errors.New(fmt.Sprintf("error writing tags to %s: %v", filename, err))
+	}
+
 	return nil
 }

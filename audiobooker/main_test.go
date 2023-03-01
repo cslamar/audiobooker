@@ -2,6 +2,7 @@ package audiobooker
 
 import (
 	"github.com/stretchr/testify/suite"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -41,6 +42,25 @@ func setTestMacros() {
 	TestFilesMp3 = filepath.Join(TestDataRoot, "transcoding/mp3")
 	TestFilesAac = filepath.Join(TestDataRoot, "transcoding/aac")
 	TestPath1 = filepath.Join(TestDataRoot, "")
+}
+
+// generateTestFile copies a template file for temporary use
+func generateTestFile(scratchPath, srcFilename string) (*os.File, error) {
+	// Copy reference file
+	tmpFile, err := os.CreateTemp(scratchPath, "")
+	if err != nil {
+		return nil, err
+	}
+	src, err := os.Open(srcFilename)
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(tmpFile, src)
+	if err != nil {
+		return nil, err
+	}
+
+	return tmpFile, nil
 }
 
 func TestSuite(t *testing.T) {

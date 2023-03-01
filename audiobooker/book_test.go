@@ -1,12 +1,14 @@
 package audiobooker
 
 import (
+	"github.com/cslamar/mp4tag"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type BookTestSuite struct {
@@ -320,4 +322,99 @@ func (suite *BookTestSuite) TestBindEmbeddedChapters() {
 	// bind
 	err = Bind(c1, b1)
 	assert.Nil(suite.T(), err)
+}
+
+func (suite *BookTestSuite) TestWriteTags() {
+	var err error
+	// helper func to compare expected results
+	var compareBookToFileTags = func(suite *BookTestSuite, book Book, filename *os.File) {
+		// read temp file for newly written tags
+		testFile, err := mp4tag.Open(filename.Name())
+		if err != nil {
+			log.Fatalln(err)
+		}
+		// get file tags
+		tags, err := testFile.Read()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		testFile.Close()
+
+		// parse year to convert allow reference
+		parsedYear := strconv.Itoa(tags.Year)
+
+		// Check for values
+		assert.Equal(suite.T(), book.Author, tags.Artist)
+		assert.Equal(suite.T(), book.Date, &parsedYear)
+		assert.Equal(suite.T(), book.Genre, &tags.Genre)
+		assert.Equal(suite.T(), book.Narrator, &tags.Composer)
+		assert.Equal(suite.T(), book.SortSlug, &tags.AlbumSort)
+		assert.Equal(suite.T(), book.SortSlug, &tags.TitleSort)
+		assert.Equal(suite.T(), book.Title, tags.Album)
+	}
+
+	srcTestFile := filepath.Join(TestDataRoot, "misc/tagging.m4b")
+	// Generate temp file for read/write operations
+	tmpFile, err := generateTestFile(suite.ScratchPath, srcTestFile)
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// All tags
+	author := "Carl von Clausewitz"
+	title := "On War - Volume 1"
+	seriesName := "On War"
+	seriesPart := 1
+	date := "1903"
+	narrator := "Random Guy"
+	genre := "History"
+
+	b1 := Book{
+		Author:     author,
+		Title:      title,
+		seriesPart: &seriesPart,
+		seriesName: &seriesName,
+		Date:       &date,
+		Narrator:   &narrator,
+		Genre:      &genre,
+	}
+
+	// test with all tags being set
+	err = b1.WriteTags(tmpFile.Name())
+	assert.Nil(suite.T(), err)
+	compareBookToFileTags(suite, b1, tmpFile)
+
+	// copy book 1 data for updated check
+	b2 := b1
+	title = "On War - Volume 2"
+	seriesPart = 2
+	b2.Title = title
+	b2.seriesPart = &seriesPart
+
+	err = b2.WriteTags(tmpFile.Name())
+	assert.Nil(suite.T(), err)
+	compareBookToFileTags(suite, b2, tmpFile)
+
+	// Copy book 2 for final tests
+	b3 := b2
+	b3.seriesPart = nil
+
+	err = b3.WriteTags(tmpFile.Name())
+	assert.Nil(suite.T(), err)
+	compareBookToFileTags(suite, b3, tmpFile)
+
+	// invalid date case
+	badDate := "not-a-date"
+	b4 := Book{
+		Date: &badDate,
+	}
+	err = b4.WriteTags(tmpFile.Name())
+	assert.Nil(suite.T(), err)
+
+	// file fail case
+	b5 := Book{}
+	err = b5.WriteTags("not-a-file")
+	assert.Error(suite.T(), err)
+
 }
