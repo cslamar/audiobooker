@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -311,4 +312,47 @@ func (b *Book) generateSortSlug() {
 		b.SortSlug = new(string)
 		*b.SortSlug = fmt.Sprintf("%s - %d", *b.seriesName, *b.seriesPart)
 	}
+}
+
+func (b *Book) tagging(filename string) error {
+	// generate SortSlug if present
+	b.generateSortSlug()
+
+	tags := mp4tag.Tags{}
+
+	// parse fields of Book
+	fields := reflect.VisibleFields(reflect.TypeOf(*b))
+
+	// loop through all fields looking for values
+	for _, field := range fields {
+		switch field.Name {
+		case "Author":
+			tags.Artist = b.Author
+		case "Date":
+			if b.Date != nil {
+				if date, err := strconv.Atoi(*b.Date); err != nil {
+					log.Warnf("invalid date entry: %v", err)
+				} else {
+					tags.Year = date
+				}
+			}
+		case "Genre":
+			if b.Genre != nil {
+				tags.Genre = *b.Genre
+			}
+		case "Narrator":
+			if b.Narrator != nil {
+				tags.Composer = *b.Narrator
+			}
+		case "SortSlug":
+			if b.SortSlug != nil {
+				tags.TitleSort = *b.SortSlug
+				tags.AlbumSort = *b.SortSlug
+			}
+		case "Title":
+			tags.Album = b.Title
+		}
+	}
+
+	return nil
 }

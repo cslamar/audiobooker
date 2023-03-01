@@ -448,3 +448,29 @@ func (suite *BookTestSuite) TestWriteTags() {
 	err = b5.WriteTags("not-a-file")
 	assert.Error(suite.T(), err)
 }
+
+func (suite *BookTestSuite) TestTagging() {
+	var err error
+
+	// All tags
+	author := "Carl von Clausewitz"
+	title := "On War - Volume 1"
+	seriesName := "On War"
+	seriesPart := 1
+	date := "1903"
+	narrator := "Random Guy"
+	genre := "History"
+
+	b1 := Book{
+		Author:     author,
+		Title:      title,
+		seriesPart: &seriesPart,
+		seriesName: &seriesName,
+		Date:       &date,
+		Narrator:   &narrator,
+		Genre:      &genre,
+	}
+
+	err = b1.tagging("some-file")
+	assert.Nil(suite.T(), err)
+}
