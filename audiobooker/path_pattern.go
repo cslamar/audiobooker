@@ -79,7 +79,7 @@ func ParsePathTags(path, pathPattern string) (map[string]string, error) {
 	log.Debugln("parser pattern:", pattern)
 
 	patterns := make(map[string]string)
-	patterns["AUDIO_FILE"] = `%{GREEDYDATA}\.(:?flac|mp3|m4a|ogg|opus)`
+	patterns["AUDIO_FILE"] = `%{GREEDYDATA}\.(:?flac|mp3|m4a|m4b|ogg|opus)`
 	patterns["NUMBER"] = `\d+`
 
 	// create grok from defined patterns only returning named captures

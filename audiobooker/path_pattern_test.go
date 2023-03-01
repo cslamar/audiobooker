@@ -36,7 +36,7 @@ func (suite *PathPatternTestSuite) TearDownSuite() {
 func (suite *PathPatternTestSuite) TestParsePathTags() {
 	// 3 tag test
 	pathPattern1 := fmt.Sprint(TestDataRoot + "/bind/chapter-by-file/%a/%s/%p/%t")
-	pathTags1, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/chapter-by-file/Author Name/Series Name/1/Title One"), pathPattern1)
+	pathTags1, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/chapter-by-file/Author Name/Series Name/1/Title Two"), pathPattern1)
 	assert.Nil(suite.T(), err)
 	assert.Len(suite.T(), pathTags1, 4)
 
@@ -54,11 +54,16 @@ func (suite *PathPatternTestSuite) TestParsePathTags() {
 	assert.Len(suite.T(), mismatchTags1, 0)
 
 	// 2 tag test
-	//pathPattern2 := "input/%a/%t"
 	pathPattern2 := fmt.Sprint(TestDataRoot + "/bind/chapter-by-tag/%a/%t")
 	pathTags2, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/chapter-by-tag/Test Author/Test Book"), pathPattern2)
 	assert.Nil(suite.T(), err)
 	assert.Len(suite.T(), pathTags2, 2)
+
+	// audio file test
+	pathPattern3 := fmt.Sprint(TestDataRoot + "/bind/single-file-split/%a/%s/%p/%t/%f")
+	pathTags3, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/single-file-split/Author Name/Series Name/1/Title Two/hour-test.m4a"), pathPattern3)
+	assert.Nil(suite.T(), err)
+	assert.Len(suite.T(), pathTags3, 5)
 }
 
 func (suite *PathPatternTestSuite) TestOutputPathPattern() {

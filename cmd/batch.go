@@ -109,10 +109,11 @@ func generateBatchOpts(config *audiobooker.Config, flags *pflag.FlagSet) error {
 	if config.Jobs <= 0 {
 		return errors.New("jobs must be greater than 0")
 	}
-	// validate output destination in config struct
-	if config.OutputFileDest == "" {
-		return errors.New("output-directory must not be empty")
-	}
+
+	// validate output destination in config struct TODO move this validation somewhere not global
+	//if config.OutputFileDest == "" {
+	//	return errors.New("output-directory must not be empty")
+	//}
 
 	return nil
 }
