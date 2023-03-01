@@ -355,7 +355,7 @@ func (suite *BookTestSuite) TestWriteTags() {
 
 	srcTestFile := filepath.Join(TestDataRoot, "misc/tagging.m4b")
 	// Generate temp file for read/write operations
-	tmpFile, err := generateTestFile(os.Getenv("TEST_SCRATCH_PATH"), srcTestFile)
+	tmpFile, err := generateTestFile(suite.ScratchPath, srcTestFile)
 	if err != nil {
 		panic(err)
 	}
