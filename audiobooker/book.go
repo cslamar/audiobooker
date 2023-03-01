@@ -255,56 +255,6 @@ func (b *Book) ExtractChapters(config Config) error {
 	return nil
 }
 
-// WriteTags overrides global metadata with data from Book
-func (b *Book) WriteTags(filename string) error {
-	// generate a sort slug if available
-	b.generateSortSlug()
-
-	tags := mp4tag.Tags{}
-
-	// filter present metadata
-	if b.Title != "" {
-		tags.Album = b.Title
-	}
-	if b.Author != "" {
-		tags.Artist = b.Author
-	}
-	if b.Date != nil {
-		strDate, err := strconv.Atoi(*b.Date)
-		if err != nil {
-			log.Errorln(err)
-			return errors.New("error converting year to number")
-		}
-		tags.Year = strDate
-	}
-	if b.Genre != nil {
-		tags.Genre = *b.Genre
-	}
-	if b.SortSlug != nil {
-		tags.TitleSort = *b.SortSlug
-		tags.AlbumSort = *b.SortSlug
-	}
-	if b.Narrator != nil {
-		tags.Composer = *b.Narrator
-	}
-
-	// open target file for tagging
-	outputFile, err := mp4tag.Open(filename)
-	if err != nil {
-		log.Errorln(err)
-		return errors.New("error opening file for tagging")
-	}
-	defer outputFile.Close()
-
-	// write available tags
-	if err := outputFile.Write(&tags); err != nil {
-		log.Errorln(err)
-		return errors.New("error writing tags to file")
-	}
-
-	return nil
-}
-
 // generateSortSlug parses metadata for sort metadata
 func (b *Book) generateSortSlug() {
 	// if series name and part are present, generate Sort property
@@ -314,7 +264,8 @@ func (b *Book) generateSortSlug() {
 	}
 }
 
-func (b *Book) tagging(filename string) error {
+// WriteTags overrides global metadata with data from Book
+func (b *Book) WriteTags(filename string) error {
 	// generate SortSlug if present
 	b.generateSortSlug()
 
@@ -323,7 +274,7 @@ func (b *Book) tagging(filename string) error {
 	// parse fields of Book
 	fields := reflect.VisibleFields(reflect.TypeOf(*b))
 
-	// loop through all fields looking for values
+	// loop through all Book fields looking for values
 	for _, field := range fields {
 		switch field.Name {
 		case "Author":
@@ -352,6 +303,17 @@ func (b *Book) tagging(filename string) error {
 		case "Title":
 			tags.Album = b.Title
 		}
+	}
+
+	// open and write to tagging target file
+	targetFile, err := mp4tag.Open(filename)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error opening %s for tagging: %v", filename, err))
+	}
+	defer targetFile.Close()
+
+	if err := targetFile.Write(&tags); err != nil {
+		return errors.New(fmt.Sprintf("error writing tags to %s: %v", filename, err))
 	}
 
 	return nil
