@@ -72,6 +72,9 @@ var batchFilesCmd = &cobra.Command{
 			bookDirs = append(bookDirs, path)
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 
 		// if no book directories were found, error out
 		if len(bookDirs) == 0 {
