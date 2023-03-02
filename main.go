@@ -11,10 +11,8 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 )
-
-// ReportCallerFlag Use build flags to toggle report caller logging
-var ReportCallerFlag = ""
 
 func init() {
 	log.SetLevel(log.InfoLevel)
@@ -24,7 +22,10 @@ func init() {
 		DisableLevelTruncation: true,
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			filename := path.Base(f.File)
-			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+			callerFuncParts := strings.Split(f.Function, "/")
+			callerFunc := callerFuncParts[len(callerFuncParts)-1]
+			return fmt.Sprintf("%s()", callerFunc), fmt.Sprintf(" %s:%d", filename, f.Line)
+			//return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
 		},
 	})
 
@@ -35,10 +36,8 @@ func init() {
 	}
 	go_log.SetOutput(devNull)
 
-	// Use build flags to toggle report caller logging
-	if ReportCallerFlag != "" {
-		log.SetReportCaller(true)
-	}
+	// default report caller to be off
+	log.SetReportCaller(false)
 }
 
 func main() {

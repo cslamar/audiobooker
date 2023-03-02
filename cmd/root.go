@@ -18,6 +18,7 @@ import (
 var cfgFile string
 var dryRun bool
 var Verbose = false
+var enableCaller = false
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -40,6 +41,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	RootCmd.PersistentFlags().BoolVar(&enableCaller, "debug", false, "debugging verbose output")
 	RootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "Run parsing commands, without converting/binding, and display expected output")
 	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 
@@ -57,7 +59,10 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if Verbose {
+	if enableCaller {
+		log.SetReportCaller(true)
+		log.SetLevel(log.DebugLevel)
+	} else if Verbose {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
