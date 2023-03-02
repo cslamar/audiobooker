@@ -42,6 +42,9 @@ var batchTagCmd = &cobra.Command{
 		audiobookFiles := make([]string, 0)
 		log.Debugln("src files root:", sourceFilesRoot)
 		err = filepath.WalkDir(sourceFilesRoot, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
 			// if a file is found, and it ends with '.m4b' add it to the audiobooks slice
 			if !d.IsDir() {
 				if strings.HasSuffix(d.Name(), ".m4b") {
@@ -63,6 +66,9 @@ var batchTagCmd = &cobra.Command{
 			}
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 
 		log.Debugln(audiobookFiles)
 

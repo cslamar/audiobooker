@@ -78,6 +78,9 @@ The other way that split-chapters can be used is if the existing file already ha
 			bookDirs = append(bookDirs, path)
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 
 		// if no book directories were found, error out
 		if len(bookDirs) == 0 {
