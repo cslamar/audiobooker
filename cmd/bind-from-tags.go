@@ -51,14 +51,13 @@ var bindFromTagsCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("dry-run flag was set, skipping conversion, but outputting meta")
 		for k, v := range pathTags {
 			fmt.Printf("%+15s: %s\n", k, v)
 		}
 		fmt.Printf("output filepath: %s\n\n", filepath.Join(config.OutputPath, config.OutputFile))
 
 		if dryRun {
-			fmt.Println("dry-run flag was set, skipping conversion")
+			fmt.Println("dry-run flag was set, skipping conversion, but outputting meta")
 			return nil
 		}
 		log.Debugln(book)

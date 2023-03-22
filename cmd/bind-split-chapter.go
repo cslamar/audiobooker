@@ -75,7 +75,7 @@ The other way that split-chapters can be used is if the existing file already ha
 		fmt.Printf("output filepath: %s\n\n", filepath.Join(config.OutputPath, config.OutputFile))
 
 		if dryRun {
-			fmt.Println("dry-run flag was set, skipping conversion")
+			fmt.Println("dry-run flag was set, skipping conversion, but outputting meta")
 			return nil
 		}
 		log.Debugln(book)
