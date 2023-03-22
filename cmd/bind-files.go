@@ -63,7 +63,6 @@ var filesCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("dry-run flag was set, skipping conversion, but outputting meta")
 		for k, v := range pathTags {
 			fmt.Printf("%+15s: %s\n", k, v)
 		}
@@ -71,7 +70,7 @@ var filesCmd = &cobra.Command{
 
 		// if dry-run flag is given, output metadata for validation but don't convert
 		if dryRun {
-			fmt.Println("dry-run flag was set, skipping conversion")
+			fmt.Println("dry-run flag was set, skipping conversion, but outputting meta")
 			return nil
 		}
 		log.Debugln(book)
