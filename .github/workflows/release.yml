@@ -1,4 +1,4 @@
-name: "Build Audiobooker"
+name: "Build and Release Audiobooker"
 on:
   push:
     # run only against tags
@@ -18,14 +18,14 @@ jobs:
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: '>=1.20'
           cache: true
       # More assembly might be required: Docker logins, GPG, etc. It all depends
       # on your needs.
       - name: Import Code-Signing Certificates for macOS
-        uses: Apple-Actions/import-codesign-certs@v1
+        uses: Apple-Actions/import-codesign-certs@v2
         with:
           # The certificates in a PKCS12 file encoded as a base64 string
           p12-file-base64: ${{ secrets.PROD_MACOS_CERTIFICATE }}
