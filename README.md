@@ -12,7 +12,7 @@ Golang audiobook creation tool with support for tagging based on directory struc
 
 ### Build Requirements
 
-* Go (developed using `1.19`)
+* Go (developed using `1.20`)
 
 ## Operations
 
@@ -38,6 +38,7 @@ Configs can be set via environment variables.  The following are the currently s
 ### Paths and Tagging
 
 Audiobooker is able to parse the structure of the directories that hold the source audiobook files and embed that data in the final audiobook file.  This is done using a series of path pattern placeholders, more information can be found [here](docs/path-patterns.md).
+
 ### Other bits
 
 Automatic cover art will be applied if one of the following files are found in the media root: `cover.jpg`, `cover.png`, `folder.jpg`, `folder.png`

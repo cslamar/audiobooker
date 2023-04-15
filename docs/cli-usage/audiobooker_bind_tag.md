@@ -1,25 +1,19 @@
-## audiobooker bind split-chapters
+## audiobooker bind tag
 
-Splits a single audio file into chapters using a fixed length
+Write tags to target audiobooks based on directory structures and path-pattern
 
 ### Synopsis
 
-Bind split-chapters will split a single file into a chapter marked audiobook file based on two options.  
-
-First a static number (in minutes) can be passed in to make hard chapter marks at the specified duration.  Each mark will result in chapter metadata being created at those increments with the name "Chapter X" (where X in the index).
-
-The other way that split-chapters can be used is if the existing file already has metadata embedded.  Passing in the '--use-embedded' flag will use that metadata when creating the chapters for the new audiobook file.
+Write tags to target audiobooks based on directory structures and path-pattern.
 
 ```
-audiobooker bind split-chapters [flags]
+audiobooker bind tag [flags]
 ```
 
 ### Options
 
 ```
-  -c, --chapter-length int   chapter length in minutes (default 5)
-  -h, --help                 help for split-chapters
-      --use-embedded         use existing embedded chapters
+  -h, --help   help for tag
 ```
 
 ### Options inherited from parent commands
