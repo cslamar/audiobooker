@@ -324,6 +324,58 @@ func (suite *BookTestSuite) TestBindEmbeddedChapters() {
 	assert.Nil(suite.T(), err)
 }
 
+func (suite *BookTestSuite) TestEmbedDescription() {
+	var err error
+
+	// Set Config to test path, create new, and check for errors
+	c1 := Config{
+		OutputPath:       suite.ScratchPath,
+		ScratchFilesPath: suite.ScratchPath,
+		SourceFilesPath:  filepath.Join(TestDataRoot, "misc", "Test Author", "Test Book", "Title One"),
+		VerboseTranscode: true,
+	}
+	err = c1.New()
+	assert.Nil(suite.T(), err)
+
+	// Create dummy book
+	b1 := Book{
+		Author: "Test Author",
+		Title:  "Title One",
+	}
+
+	// generate metadata template
+	err = b1.GenerateMetaTemplate(c1)
+	// check for error
+	assert.Nil(suite.T(), err)
+	// check for existence of description
+	assert.NotNil(suite.T(), b1.Description)
+
+	// invalid description path
+	// Set Config to test path, create new, and check for errors
+	c2 := Config{
+		OutputPath:       suite.ScratchPath,
+		ScratchFilesPath: suite.ScratchPath,
+		SourceFilesPath:  filepath.Join(TestDataRoot, "misc", "Test Author", "Test Book", "Title One"),
+		VerboseTranscode: true,
+	}
+	err = c2.New()
+	assert.Nil(suite.T(), err)
+	// set empty description file and check for file pointer error
+	c2.descriptionFile, err = os.Open(filepath.Join(TestDataRoot, "misc", "empty.txt"))
+	assert.Nil(suite.T(), err)
+
+	// Create dummy book
+	b2 := Book{
+		Author: "Test Author",
+		Title:  "Title One",
+	}
+
+	// attempt to generate a description, it should not error even though it does not exist
+	err = b2.GenerateMetaTemplate(c2)
+	assert.Nil(suite.T(), err)
+
+}
+
 func (suite *BookTestSuite) TestWriteTags() {
 	var err error
 	// helper func to compare expected results

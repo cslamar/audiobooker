@@ -11,7 +11,7 @@ permissions:
   # issues: write
 
 jobs:
-  goreleaser:
+  release:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
       - run: git fetch --force --tags
       - uses: actions/setup-go@v3
         with:
-          go-version: '>=1.19'
+          go-version: '>=1.20'
           cache: true
       # More assembly might be required: Docker logins, GPG, etc. It all depends
       # on your needs.

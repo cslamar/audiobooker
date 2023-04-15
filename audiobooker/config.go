@@ -36,6 +36,8 @@ var formats = []string{
 type Config struct {
 	// ChaptersFile file handler for chapters file
 	ChaptersFile *os.File
+	// DescriptionFilename optional filename for book description data
+	DescriptionFilename string
 	// ExternalChapters pull chapters from existing file
 	ExternalChapters bool
 	// Jobs number of concurrent transcode jobs to run
@@ -59,6 +61,8 @@ type Config struct {
 
 	// coverImage scraped cover image
 	coverImage *string
+	// descriptionFile file handler book description file
+	descriptionFile *os.File
 	// OutputFile filename of final book output file
 	OutputFile string
 	// OutputPath rendered path directories
@@ -170,6 +174,13 @@ func (c *Config) gatherSourceFilesFromDir() error {
 			switch filepath.Base(path) {
 			case "cover.jpg", "cover.png", "folder.jpg", "folder.png":
 				c.coverImage = &path
+			case "description.txt", "comment.txt", c.DescriptionFilename:
+				log.Debugf("%s description file found!!", path)
+				c.descriptionFile, err = os.Open(path)
+				if err != nil {
+					log.Errorf("could not open description file %s ", path)
+					return err
+				}
 			}
 		}
 
