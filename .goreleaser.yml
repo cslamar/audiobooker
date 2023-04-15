@@ -13,6 +13,7 @@ builds:
       - windows
     goarch:
       - amd64
+
   - id: audiobooker-macos
     env:
       - CGO_ENABLED=0
@@ -22,7 +23,17 @@ builds:
       - amd64
       - arm64
     hooks:
-      post: /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
+      post:
+        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
+
+universal_binaries:
+  - id: macos
+    ids:
+      - audiobooker-macos
+    replace: true
+    hooks:
+      post:
+        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
 
 archives:
   - id: windows-linux
@@ -35,12 +46,11 @@ archives:
       - goos: windows
         format: zip
 
-  - id: macos
+  - id: macos_universal
     builds:
-      - audiobooker-macos
-    # use zip for macos archives
+      - macos
     format: zip
-    name_template: '{{ .ProjectName }}_macos_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
+    name_template: '{{ .ProjectName }}_macos_universal'
 
 checksum:
   name_template: 'checksums.txt'
@@ -57,7 +67,7 @@ signs:
   - id: macos
     artifacts: archive
     ids:
-      - macos
+      - macos_universal
     signature: "${artifact}"
     output: true
     cmd: xcrun
@@ -65,7 +75,7 @@ signs:
       [
         "notarytool",
         "submit",
-        '${artifact}',
+        './dist/{{ .ProjectName }}_macos_universal.zip',
         "--apple-id",
         "{{ .Env.PROD_MACOS_NOTARIZATION_APPLE_ID }}",
         "--password",
@@ -77,6 +87,11 @@ signs:
       ]
 
 release:
-  github:
-    owner: cslamar
-    name: audiobooker
+  ids:
+    - windows-linux
+    - macos
+
+# The lines beneath this are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj

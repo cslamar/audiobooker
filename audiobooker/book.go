@@ -11,6 +11,7 @@ import (
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
 	"gopkg.in/vansante/go-ffprobe.v2"
 	"html/template"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -23,13 +24,14 @@ var metadataTemplate embed.FS
 
 // Book top level construct of book
 type Book struct {
-	Author   string
-	Chapters []*Chapter
-	Date     *string
-	Genre    *string
-	Narrator *string
-	SortSlug *string
-	Title    string
+	Author      string
+	Chapters    []*Chapter
+	Date        *string
+	Description *string
+	Genre       *string
+	Narrator    *string
+	SortSlug    *string
+	Title       string
 
 	seriesName *string
 	seriesPart *int
@@ -43,6 +45,13 @@ func (b *Book) GenerateMetaTemplate(config Config) error {
 		*b.SortSlug = fmt.Sprintf("%s - %d - %s", *b.seriesName, *b.seriesPart, b.Title)
 	}
 
+	// check for and parse description file
+	if config.descriptionFile != nil {
+		if err := b.formatDescription(config); err != nil {
+			return err
+		}
+	}
+
 	tmpl, err := template.ParseFS(metadataTemplate, "metadata.ini.tmpl")
 	if err != nil {
 		return err
@@ -51,6 +60,31 @@ func (b *Book) GenerateMetaTemplate(config Config) error {
 	if err := tmpl.Execute(config.ChaptersFile, b); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// formatDescription reads and parses description text file into a formatted tag entry
+func (b *Book) formatDescription(config Config) error {
+	// read in description file content
+	data, err := io.ReadAll(config.descriptionFile)
+	if err != nil {
+		log.Errorln("error reading description file:", config.descriptionFile.Name())
+		return err
+	}
+
+	// check for empty file data to prevent unneeded parsing
+	if len(data) == 0 {
+		log.Warnln("no data found in description file, skipping")
+		return nil
+	}
+
+	// replace all newlines with a space and backslash
+	formattedDescription := strings.ReplaceAll(string(data), "\n", " \\\n")
+	// append a final newline to make sure the template isn't munched with the escaping
+	formattedDescription += "\n"
+
+	b.Description = &formattedDescription
 
 	return nil
 }

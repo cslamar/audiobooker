@@ -9,6 +9,9 @@ date={{ .Date}}
 sort_name={{ .SortSlug}}
 sort_album={{ .SortSlug}}
 {{- end}}
+{{- if .Description}}
+description={{ .Description}}
+{{- end}}
 {{- if .Narrator}}
 composer={{ .Narrator}}
 {{- end}}
