@@ -41,7 +41,8 @@ Audiobooker is able to parse the structure of the directories that hold the sour
 
 ### Other bits
 
-Automatic cover art will be applied if one of the following files are found in the media root: `cover.jpg`, `cover.png`, `folder.jpg`, `folder.png`
+* Automatic cover art will be applied if one of the following files are found in the media root: `cover.jpg`, `cover.png`, `folder.jpg`, `folder.png`
+* Automatic description metadata will be applied if one of the following files are found in the media root: `description.txt` or `comment.txt` 
 
 ## Inspiration and Special Thanks
 
