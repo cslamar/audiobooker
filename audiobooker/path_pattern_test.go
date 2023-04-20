@@ -64,6 +64,12 @@ func (suite *PathPatternTestSuite) TestParsePathTags() {
 	pathTags3, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/single-file-split/Author Name/Series Name/1/Title Two/hour-test.m4a"), pathPattern3)
 	assert.Nil(suite.T(), err)
 	assert.Len(suite.T(), pathTags3, 5)
+
+	// all tag test
+	pathPattern4 := fmt.Sprint(TestDataRoot + "/bind/all-path-patterns/%g/%a/%s/%p/%y/%n/%t/%f")
+	pathTags4, err := ParsePathTags(filepath.Join(TestDataRoot, "/bind/all-path-patterns/Thriller/Author Name/Series Name/1/1998/Scott Narrator/Title One/hour-test.m4a"), pathPattern4)
+	assert.Nil(suite.T(), err)
+	assert.Len(suite.T(), pathTags4, 8)
 }
 
 func (suite *PathPatternTestSuite) TestOutputPathPattern() {

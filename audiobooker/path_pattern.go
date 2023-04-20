@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/vjeantet/grok"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -36,10 +37,12 @@ const (
 
 // ParsePathTags takes in file path and pattern string returning a map of the pattern matched values
 func ParsePathTags(path, pathPattern string) (map[string]string, error) {
-	// sanitize path pattern to remove trailing /
-	pathPattern = strings.TrimSuffix(pathPattern, "/")
+	// This _should_ allow for both Unix(like) and Windows directory pathing to be used.
+	// sanitize path pattern to remove trailing / or \ (platform dependant)
+	pathPattern = strings.TrimSuffix(pathPattern, string(os.PathSeparator))
 	// split pattern by directory slashes
-	parserPatterns := strings.Split(pathPattern, "/")
+	parserPatterns := strings.Split(pathPattern, string(os.PathSeparator))
+
 	// TODO if this fails try `\` for Windows?
 	log.Debugln("parser pattern tags:", parserPatterns)
 
