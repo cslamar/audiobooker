@@ -131,6 +131,7 @@ func (b *Book) ParseFromPattern(tags map[string]string) {
 // GenerateStaticChapters creates Chapter objects based on specified length
 func (b *Book) GenerateStaticChapters(config Config, chapterLengthMin int) error {
 	totalMs := int64(0)
+	chapterLenMs := int64(chapterLengthMin * 60 * 1000)
 	for _, filename := range config.transcodeFiles {
 		f, err := os.Open(filename)
 		if err != nil {
@@ -142,7 +143,7 @@ func (b *Book) GenerateStaticChapters(config Config, chapterLengthMin int) error
 	}
 
 	extraChapterLen := int64(0)
-	numChapters := totalMs / int64(chapterLengthMin*60*1000)
+	numChapters := totalMs / chapterLenMs
 
 	if numChapters == 0 {
 		log.Debugf("book %s - %s has less than one chapter length's worth of audio!  Creating no chapter.", b.Author, b.Title)
@@ -151,9 +152,9 @@ func (b *Book) GenerateStaticChapters(config Config, chapterLengthMin int) error
 		log.Debugln("checking for extra audio after first track")
 		extraChapterLen = totalMs - int64(chapterLengthMin*60*1000)
 		log.Debugf("found %d remaining after first track", extraChapterLen)
-	} else if (totalMs % numChapters) != 0 {
+	} else if (totalMs % chapterLenMs) != 0 {
 		log.Debugln("found extra audio after last chapter")
-		extraChapterLen = totalMs % numChapters
+		extraChapterLen = totalMs % chapterLenMs
 		log.Debugf("found %d remaining after last track", extraChapterLen)
 	}
 
