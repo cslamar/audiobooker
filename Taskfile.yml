@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  clean:
+    desc: "Clean temporary directories"
+    cmds:
+      - rm -rf scratch-dir*
+      - rm -rf ./ab/output/*
+      - rm -rf dist/
+
+  cli-docs:
+    desc: "Generate auto-generated cli repository documentation"
+    cmds:
+      - go run docs/generate-docs.go
+
+  test-local:
+    desc: "Run tests locally with test directories"
+    dotenv:
+      - '.env_test'
+    cmds:
+      - go test -v -cover ./...
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v -cover ./...
+
+  test-with-output:
+    desc: "Run tests with coverage file output"
+    cmds:
+      - go test -v ./... -covermode=count -coverprofile=/tmp/coverage.out
+      - go tool cover -func=/tmp/coverage.out -o=/tmp/coverage.out
+      - cmd: echo "COVERAGE_PERCENT=$(grep '(statements)' /tmp/coverage.out|awk '{ print $3 }'|sed 's/\%//g')" > /tmp/percentage
+        silent: true

@@ -9,7 +9,12 @@ jobs:
       image: ghcr.io/cslamar/audiobooker-test-data:latest
       options: --cpus 1
     steps:
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check out the repo
         uses: actions/checkout@v3
       - name: Run test suites
-        run: make test
+        run: task test
