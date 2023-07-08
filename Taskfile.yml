@@ -5,7 +5,6 @@ tasks:
     desc: "Clean temporary directories"
     cmds:
       - rm -rf scratch-dir*
-      - rm -rf ./ab/output/*
       - rm -rf dist/
 
   cli-docs:

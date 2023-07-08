@@ -1,0 +1,93 @@
+## This is in draft until I get the Apple developer account again...
+
+builds:
+  - id: audiobooker-linux-windows
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+
+  - id: audiobooker-macos
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    hooks:
+      post:
+        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
+
+universal_binaries:
+  - id: macos
+    ids:
+      - audiobooker-macos
+    replace: true
+    hooks:
+      post:
+        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
+
+archives:
+  - id: windows-linux
+    builds:
+      - audiobooker-linux-windows
+    format: tar.gz
+    name_template: '{{ .ProjectName }}_{{ .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+  - id: macos_universal
+    builds:
+      - macos
+    format: zip
+    name_template: '{{ .ProjectName }}_macos_universal'
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+signs:
+  - id: macos
+    artifacts: archive
+    ids:
+      - macos_universal
+    signature: "${artifact}"
+    output: true
+    cmd: xcrun
+    args:
+      [
+        "notarytool",
+        "submit",
+        './dist/{{ .ProjectName }}_macos_universal.zip',
+        "--apple-id",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_APPLE_ID }}",
+        "--password",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_PWD }}",
+        "--team-id",
+        "{{ .Env.PROD_MACOS_NOTARIZATION_TEAM_ID }}",
+        "--progress",
+        "--wait",
+      ]
+
+release:
+  ids:
+    - windows-linux
+    - macos
+
+# The lines beneath this are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
