@@ -44,6 +44,27 @@ Audiobooker is able to parse the structure of the directories that hold the sour
 * Automatic cover art will be applied if one of the following files are found in the media root: `cover.jpg`, `cover.png`, `folder.jpg`, `folder.png`
 * Automatic description metadata will be applied if one of the following files are found in the media root: `description.txt` or `comment.txt` 
 
+
+## Notes on macOS
+
+I do not currently have an Apple developer account, therefore the macOS binary cannot be signed/notarized.  Until I decide to pay for one again you may do the following:
+
+- Download the source and build it locally.  This will avoid the whole quarantine thing all together.
+- Download from the releases section of this repo and run the following command in the directory where you've extracted the `audiobooker` binary:
+
+```shell
+xattr -d com.apple.quarantine audiobooker
+```
+
+That will remove the quarantine attribute and things will work as expected.  
+
+This is **not** optimal.  
+
+You should **not** do this will most software.  
+
+Unfortunately since Apple doesn't allow notarizing of open source software unless you pay for the $99/year privilege.  This is open source, you can see the code, you see the build pipeline, etc.  I'm planning on leaving the un-notarized binaries in the releases section for ease of use, as I'd love to get more peoples' input and exposure.  `/end_rant`
+
+
 ## Inspiration and Special Thanks
 
 This project was heavily inspired by [m4b-tool](https://github.com/sandreas/m4b-tool), it was not a lack of quality in that project that made me want to write my own, but I thought it'd be fun and wanted to write it in Go personally.  Much credit goes there and where imitation is found, it's completely out of flattery to someone that has design a great project!

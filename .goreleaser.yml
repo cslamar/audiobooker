@@ -1,20 +1,22 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-# before:
-#   hooks:
-#     # You may remove this if you don't use go modules.
-#     - go mod tidy
 builds:
-  - id: audiobooker-linux-windows
+  -
+    id: linux
     env:
       - CGO_ENABLED=0
     goos:
       - linux
+    goarch:
+      - amd64
+  -
+    id: windows
+    env:
+      - CGO_ENABLED=0
+    goos:
       - windows
     goarch:
       - amd64
-
-  - id: audiobooker-macos
+  -
+    id: darwin
     env:
       - CGO_ENABLED=0
     goos:
@@ -22,33 +24,29 @@ builds:
     goarch:
       - amd64
       - arm64
-    hooks:
-      post:
-        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
 
 universal_binaries:
-  - id: macos
+  - id: macos_universal
     ids:
-      - audiobooker-macos
+      - darwin
     replace: true
-    hooks:
-      post:
-        - /usr/bin/codesign --force -s "{{ .Env.PROD_MACOS_CERTIFICATE_NAME }}" --options runtime {{ .Path }} -v
 
 archives:
-  - id: windows-linux
+  - id: windows
     builds:
-      - audiobooker-linux-windows
+      - windows
+    format: zip
+    name_template: '{{ .ProjectName }}_{{ .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
+
+  - id: linux
+    builds:
+      - linux
     format: tar.gz
     name_template: '{{ .ProjectName }}_{{ .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}'
-    # use zip for windows archives
-    format_overrides:
-      - goos: windows
-        format: zip
 
-  - id: macos_universal
+  - id: macos
     builds:
-      - macos
+      - macos_universal
     format: zip
     name_template: '{{ .ProjectName }}_macos_universal'
 
@@ -63,32 +61,10 @@ changelog:
       - '^docs:'
       - '^test:'
 
-signs:
-  - id: macos
-    artifacts: archive
-    ids:
-      - macos_universal
-    signature: "${artifact}"
-    output: true
-    cmd: xcrun
-    args:
-      [
-        "notarytool",
-        "submit",
-        './dist/{{ .ProjectName }}_macos_universal.zip',
-        "--apple-id",
-        "{{ .Env.PROD_MACOS_NOTARIZATION_APPLE_ID }}",
-        "--password",
-        "{{ .Env.PROD_MACOS_NOTARIZATION_PWD }}",
-        "--team-id",
-        "{{ .Env.PROD_MACOS_NOTARIZATION_TEAM_ID }}",
-        "--progress",
-        "--wait",
-      ]
-
 release:
   ids:
-    - windows-linux
+    - windows
+    - linux
     - macos
 
 # The lines beneath this are called `modelines`. See `:help modeline`
