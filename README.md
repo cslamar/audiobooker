@@ -47,10 +47,16 @@ Audiobooker is able to parse the structure of the directories that hold the sour
 
 ## Notes on macOS
 
-I do not currently have an Apple developer account, therefore the macOS binary cannot be signed/notarized.  Until I decide to pay for one again you may do the following:
+I do not currently have an Apple developer account, therefore the macOS binary cannot be signed/notarized.  Until I decide to pay for one again you may do one of the following:
 
 - Download the source and build it locally.  This will avoid the whole quarantine thing all together.
-- Download from the releases section of this repo and run the following command in the directory where you've extracted the `audiobooker` binary:
+- Download the release zip file from the releases section using either `curl` or `wget`, this workaround _should_ avoid the quarantine issue that happens when downloading through a browser.
+
+```shell
+curl -OL https://github.com/cslamar/audiobooker/releases/download/VERSION_TAG/audiobooker_macos_universal.zip
+```
+
+- Download from the releases section of this repo, in a browser, and run the following command in the directory where you've extracted the `audiobooker` binary:
 
 ```shell
 xattr -d com.apple.quarantine audiobooker
