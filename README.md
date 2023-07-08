@@ -60,7 +60,7 @@ That will remove the quarantine attribute and things will work as expected.
 
 This is **not** optimal.  
 
-You should **not** do this will most software.  
+You should **not** do this with most software.  
 
 Unfortunately since Apple doesn't allow notarizing of open source software unless you pay for the $99/year privilege.  This is open source, you can see the code, you see the build pipeline, etc.  I'm planning on leaving the un-notarized binaries in the releases section for ease of use, as I'd love to get more peoples' input and exposure.  `/end_rant`
 
