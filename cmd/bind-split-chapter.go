@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -36,7 +37,10 @@ The other way that split-chapters can be used is if the existing file already ha
 		if err != nil {
 			return err
 		}
-
+		generateChapters, err := cmd.Flags().GetBool("generate-chapters")
+		if err != nil {
+			return err
+		}
 		// create config struct and parse ENV variables for configs
 		config := audiobooker.Config{}
 		defer config.Cleanup()
@@ -68,6 +72,11 @@ The other way that split-chapters can be used is if the existing file already ha
 			return err
 		}
 
+		// TODO find a better/cleaner/nicer way of handling extensions
+		if strings.HasSuffix(config.OutputFile, ".m4b.m4b") {
+			config.OutputFile = strings.TrimSuffix(config.OutputFile, ".m4b")
+		}
+
 		// output parsed metadata
 		for k, v := range pathTags {
 			fmt.Printf("%+15s: %s\n", k, v)
@@ -79,6 +88,27 @@ The other way that split-chapters can be used is if the existing file already ha
 			return nil
 		}
 		log.Debugln(book)
+
+		// process the chapter split and generate a chapters metadata file only, no encoding
+		if generateChapters {
+			log.Infoln("generating static chapter metadata")
+			if err := book.GenerateStaticChapters(config, chapterLength, config.SourceFilesPath); err != nil {
+				return err
+			}
+			// generate the chapters ini file
+			if err := book.GenerateChaptersTemplate(config); err != nil {
+				return err
+			}
+			log.Debugln(book.Chapters)
+
+			// embed the chapters file in a new file
+			if err := audiobooker.EmbedChapters(config); err != nil {
+				log.Errorln(err)
+				return err
+			}
+
+			return nil
+		}
 
 		// extract embedded chapters if instructed
 		if config.ExternalChapters {
@@ -103,7 +133,7 @@ The other way that split-chapters can be used is if the existing file already ha
 
 		if !config.ExternalChapters {
 			fmt.Println("generating static chapters based on specified chapter length")
-			if err := book.GenerateStaticChapters(config, chapterLength); err != nil {
+			if err := book.GenerateStaticChapters(config, chapterLength, ""); err != nil {
 				return err
 			}
 		}
@@ -137,15 +167,5 @@ func init() {
 	// define flags for this command
 	splitChaptersCmd.Flags().IntP("chapter-length", "c", 5, "chapter length in minutes")
 	splitChaptersCmd.Flags().Bool("use-embedded", false, "use existing embedded chapters")
-	// Here you will define your flags and configuration settings.
-	//splitChaptersCmd.MarkFlagRequired("source-files-path")
-	splitChaptersCmd.MarkPersistentFlagRequired("chapter-length")
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// splitChaptersCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// splitChaptersCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	splitChaptersCmd.Flags().Bool("generate-chapters", false, "generate chapters and embed them in and existing .m4b audiobook (no transcoding required)")
 }
