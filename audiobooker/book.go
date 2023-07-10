@@ -22,6 +22,11 @@ import (
 //go:embed metadata.ini.tmpl
 var metadataTemplate embed.FS
 
+// TODO there may be a better way of doing this inside the metadata template file with conditionals
+
+//go:embed chapters.ini.tmpl
+var chaptersTemplate embed.FS
+
 // Book top level construct of book
 type Book struct {
 	Author      string
@@ -53,6 +58,20 @@ func (b *Book) GenerateMetaTemplate(config Config) error {
 	}
 
 	tmpl, err := template.ParseFS(metadataTemplate, "metadata.ini.tmpl")
+	if err != nil {
+		return err
+	}
+
+	if err := tmpl.Execute(config.ChaptersFile, b); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GenerateChaptersTemplate generates the chapter ini file from Book chapters slice
+func (b *Book) GenerateChaptersTemplate(config Config) error {
+	tmpl, err := template.ParseFS(chaptersTemplate, "chapters.ini.tmpl")
 	if err != nil {
 		return err
 	}
@@ -129,17 +148,39 @@ func (b *Book) ParseFromPattern(tags map[string]string) {
 }
 
 // GenerateStaticChapters creates Chapter objects based on specified length
-func (b *Book) GenerateStaticChapters(config Config, chapterLengthMin int) error {
+func (b *Book) GenerateStaticChapters(config Config, chapterLengthMin int, srcFile string) error {
 	totalMs := int64(0)
 	chapterLenMs := int64(chapterLengthMin * 60 * 1000)
-	for _, filename := range config.transcodeFiles {
-		f, err := os.Open(filename)
+
+	if srcFile != "" {
+		// check if the source file specified is a file or a directory, if a directory grab the single file from the slice (error if there's more than one)
+		sourceFile, err := config.CheckForSourceFile(srcFile)
 		if err != nil {
 			return err
 		}
+
+		f, err := os.Open(sourceFile)
+		if err != nil {
+			return err
+		}
+
 		fileData, err := ffprobe.ProbeURL(context.Background(), f.Name())
+		if err != nil {
+			return err
+		}
 		totalMs += fileData.Format.Duration().Milliseconds()
 		f.Close()
+	} else {
+		// if no specific source file is passed in, use the transcode files instead
+		for _, filename := range config.transcodeFiles {
+			f, err := os.Open(filename)
+			if err != nil {
+				return err
+			}
+			fileData, err := ffprobe.ProbeURL(context.Background(), f.Name())
+			totalMs += fileData.Format.Duration().Milliseconds()
+			f.Close()
+		}
 	}
 
 	extraChapterLen := int64(0)

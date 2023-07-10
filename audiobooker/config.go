@@ -233,3 +233,33 @@ func (c *Config) SetOutputFilename(book Book) error {
 
 	return nil
 }
+
+// CheckForSourceFile checks if given path is a regular file or a directory and returns the filename of either the regular file or the file within the directory
+func (c *Config) CheckForSourceFile(srcPath string) (string, error) {
+	// Get file info of specified source file
+	srcFileInfo, err := os.Lstat(srcPath)
+	if err != nil {
+		return "", err
+	}
+	if srcFileInfo.Mode().IsDir() {
+		// if the source file passed in is a directory
+		log.Debugln("srcFile is a directory!")
+		log.Debugln("need to looks for file instead!")
+
+		if len(c.sourceFiles) > 1 {
+			return "", errors.New("sourceFiles slice has more than one file in it, this operation should only be preformed on a single file")
+		} else if len(c.sourceFiles) == 0 {
+			return "", errors.New("sourceFiles slice has no file entries, bailing")
+		}
+
+		// return the first element in the slice as the source file path
+		return c.sourceFiles[0], nil
+
+	} else if srcFileInfo.Mode().IsRegular() {
+		// if the source file passed in is a regular file, return the path for processing
+		log.Debugln("srcFile is a regular file")
+		return srcPath, nil
+	} else {
+		return "", errors.New("unknown operation, bailing")
+	}
+}

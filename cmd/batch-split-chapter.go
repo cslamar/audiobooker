@@ -53,6 +53,11 @@ The other way that split-chapters can be used is if the existing file already ha
 			return err
 		}
 
+		generateChapters, err := cmd.Flags().GetBool("generate-chapters")
+		if err != nil {
+			return err
+		}
+
 		// slice of directories that contain books
 		bookDirs := make([]string, 0)
 
@@ -147,6 +152,28 @@ The other way that split-chapters can be used is if the existing file already ha
 				fmt.Printf("dry-run flag was set, skipping conversion\n\n")
 				continue
 			}
+
+			// adds static chapters to .m4b audiobook file without transcoding
+			if generateChapters {
+				log.Infoln("Generating/Embedding static chapter metadata")
+				if err := book.GenerateStaticChapters(config, chapterLength, config.SourceFilesPath); err != nil {
+					return err
+				}
+				// generate the chapters ini file
+				if err := book.GenerateChaptersTemplate(config); err != nil {
+					return err
+				}
+				log.Debugln(book.Chapters)
+
+				// embed the chapters file in a new file
+				if err := audiobooker.EmbedChapters(config); err != nil {
+					log.Errorln(err)
+					return err
+				}
+
+				continue
+			}
+
 			log.Debugln("Beginning conversion")
 
 			// extract embedded chapters if instructed
@@ -174,7 +201,7 @@ The other way that split-chapters can be used is if the existing file already ha
 			// Generate static chapters metadata for book
 			if !config.ExternalChapters {
 				fmt.Println("generating static chapters based on specified chapter length")
-				if err := book.GenerateStaticChapters(config, chapterLength); err != nil {
+				if err := book.GenerateStaticChapters(config, chapterLength, ""); err != nil {
 					return err
 				}
 			}
@@ -207,13 +234,5 @@ func init() {
 
 	batchSplitCmd.Flags().IntP("chapter-length", "c", 5, "chapter length in minutes")
 	batchSplitCmd.Flags().Bool("use-embedded", false, "use existing embedded chapters")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// filesCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// filesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	batchSplitCmd.Flags().Bool("generate-chapters", false, "generate chapters and embed them in and existing .m4b audiobook (no transcoding required)")
 }
