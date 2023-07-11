@@ -138,8 +138,6 @@ func (b *Book) ParseFromPattern(tags map[string]string) {
 			b.seriesPart = &seriesPart
 		case "title":
 			b.Title = v
-		default:
-			log.Debugf("no attribute matches %s, ignoring.", k)
 		}
 	}
 }
