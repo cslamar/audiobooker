@@ -7,6 +7,8 @@ builds:
       - linux
     goarch:
       - amd64
+    ldflags:
+      - -X github.com/cslamar/audiobooker/cmd.Version={{.Version}}
   -
     id: windows
     env:
@@ -15,6 +17,8 @@ builds:
       - windows
     goarch:
       - amd64
+    ldflags:
+      - -X github.com/cslamar/audiobooker/cmd.Version={{.Version}}
   -
     id: darwin
     env:
@@ -24,6 +28,8 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -X github.com/cslamar/audiobooker/cmd.Version={{.Version}}
 
 universal_binaries:
   - id: macos_universal
