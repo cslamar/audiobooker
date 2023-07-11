@@ -71,10 +71,7 @@ func (b *Book) GenerateMetaTemplate(config Config) error {
 
 // GenerateChaptersTemplate generates the chapter ini file from Book chapters slice
 func (b *Book) GenerateChaptersTemplate(config Config) error {
-	tmpl, err := template.ParseFS(chaptersTemplate, "chapters.ini.tmpl")
-	if err != nil {
-		return err
-	}
+	tmpl, _ := template.ParseFS(chaptersTemplate, "chapters.ini.tmpl")
 
 	if err := tmpl.Execute(config.ChaptersFile, b); err != nil {
 		return err
