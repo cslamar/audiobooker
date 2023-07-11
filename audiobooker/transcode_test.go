@@ -179,7 +179,7 @@ func (suite *TranscodeTestSuite) TestEmbedChapters() {
 
 	// Fail case where output path is invalid (read-only in this case)
 	c2 := c1
-	c2.OutputPath = "/asdf"
+	c2.OutputPath = "/dev/null"
 	err = EmbedChapters(c2)
 	assert.Error(suite.T(), err)
 
