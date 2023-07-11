@@ -254,12 +254,9 @@ func (c *Config) CheckForSourceFile(srcPath string) (string, error) {
 
 		// return the first element in the slice as the source file path
 		return c.sourceFiles[0], nil
-
-	} else if srcFileInfo.Mode().IsRegular() {
-		// if the source file passed in is a regular file, return the path for processing
+	} else {
+		// The source file passed in is a regular file, return the path for processing
 		log.Debugln("srcFile is a regular file")
 		return srcPath, nil
-	} else {
-		return "", errors.New("unknown operation, bailing")
 	}
 }
