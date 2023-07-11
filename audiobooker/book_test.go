@@ -255,7 +255,7 @@ func (suite *BookTestSuite) TestGenerateStaticChapters() {
 		transcodeFiles: []string{filepath.Join(TestDataRoot, "misc/60-min.m4a")},
 	}
 	b1 := Book{}
-	err := b1.GenerateStaticChapters(c1, 5)
+	err := b1.GenerateStaticChapters(c1, 5, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 12, len(b1.Chapters))
 
@@ -264,7 +264,7 @@ func (suite *BookTestSuite) TestGenerateStaticChapters() {
 		transcodeFiles: []string{filepath.Join(TestDataRoot, "misc/4-min.m4a")},
 	}
 	b2 := Book{}
-	err = b2.GenerateStaticChapters(c2, 5)
+	err = b2.GenerateStaticChapters(c2, 5, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 0, len(b2.Chapters))
 
@@ -273,7 +273,7 @@ func (suite *BookTestSuite) TestGenerateStaticChapters() {
 		transcodeFiles: []string{filepath.Join(TestDataRoot, "misc/8-min.m4a")},
 	}
 	b3 := Book{}
-	err = b3.GenerateStaticChapters(c3, 5)
+	err = b3.GenerateStaticChapters(c3, 5, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 2, len(b3.Chapters))
 
@@ -282,9 +282,17 @@ func (suite *BookTestSuite) TestGenerateStaticChapters() {
 		transcodeFiles: []string{filepath.Join(TestDataRoot, "misc/8-min.m4a")},
 	}
 	b4 := Book{}
-	err = b4.GenerateStaticChapters(c4, 3)
+	err = b4.GenerateStaticChapters(c4, 3, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 3, len(b4.Chapters))
+
+	// sixty minute single file test
+	c5 := Config{
+		sourceFiles: []string{filepath.Join(TestDataRoot, "misc", "60-min-book.m4b")},
+	}
+	b5 := Book{}
+	err = b5.GenerateStaticChapters(c5, 5, filepath.Join(TestDataRoot, "misc", "60-min-book.m4b"))
+	assert.Nil(suite.T(), err)
 }
 
 func (suite *BookTestSuite) TestBindEmbeddedChapters() {
@@ -469,4 +477,79 @@ func (suite *BookTestSuite) TestWriteTags() {
 	err = b5.WriteTags("not-a-file")
 	assert.Error(suite.T(), err)
 
+}
+
+func (suite *BookTestSuite) TestGenerateChaptersTemplate() {
+	var err error
+
+	// template parse failure
+	c1 := Config{}
+	b1 := Book{}
+	err = b1.GenerateChaptersTemplate(c1)
+	assert.Error(suite.T(), err)
+
+	// Success case
+	chapterFile, err := os.Create(filepath.Join(suite.ScratchPath, "test-chapters.ini"))
+	if err != nil {
+		panic(err)
+	}
+	chapters1 := make([]*Chapter, 3)
+	chapters1[0] = &Chapter{
+		LengthMs: 1500000,
+		StartMs:  0,
+		EndMs:    1500000,
+		Number:   0,
+		Title:    "Chapter 1",
+	}
+	chapters1[1] = &Chapter{
+		LengthMs: 1500000,
+		StartMs:  1500000,
+		EndMs:    3000000,
+		Number:   1,
+		Title:    "Chapter 2",
+	}
+	chapters1[2] = &Chapter{
+		LengthMs: 1500000,
+		StartMs:  3000000,
+		EndMs:    4500000,
+		Number:   2,
+		Title:    "Chapter 3",
+	}
+
+	c2 := Config{
+		ChaptersFile: chapterFile,
+	}
+	b2 := Book{
+		Chapters: chapters1,
+	}
+
+	err = b2.GenerateChaptersTemplate(c2)
+	assert.Nil(suite.T(), err)
+}
+
+func (suite *BookTestSuite) TestFormatDescription() {
+	var err error
+
+	// test file pointers
+	invalidFile, _ := os.Open("/dev/asdf")
+	emptyFile, _ := os.Open(filepath.Join(TestDataRoot, "misc", "empty.txt"))
+	descriptionFile, _ := os.Open(filepath.Join(TestDataRoot, "misc", "description.txt"))
+
+	// fail case invalid file
+	c1 := Config{descriptionFile: invalidFile}
+	b1 := Book{}
+	err = b1.formatDescription(c1)
+	assert.Error(suite.T(), err)
+
+	// warning case empty file
+	c2 := Config{descriptionFile: emptyFile}
+	b2 := Book{}
+	err = b2.formatDescription(c2)
+	assert.Nil(suite.T(), err)
+
+	// success case
+	c3 := Config{descriptionFile: descriptionFile}
+	b3 := Book{}
+	err = b3.formatDescription(c3)
+	assert.Nil(suite.T(), err)
 }

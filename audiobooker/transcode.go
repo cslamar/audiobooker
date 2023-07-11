@@ -35,6 +35,35 @@ func Combine(config Config) error {
 	return nil
 }
 
+// EmbedChapters generates an output file with the chapter specified chapter list metadata
+func EmbedChapters(config Config) error {
+	// check if the source file is a directory or regular file, return single element if it's a directory
+	srcFilename, err := config.CheckForSourceFile(config.SourceFilesPath)
+	if err != nil {
+		return err
+	}
+
+	// Create full output path
+	if err := os.MkdirAll(config.OutputPath, 0755); err != nil {
+		return err
+	}
+
+	// build embed command
+	embedCmd := ffmpeg_go.Input(config.ChaptersFile.Name(), ffmpeg_go.KwArgs{"i": srcFilename}).
+		Output(filepath.Join(config.OutputPath, config.OutputFile), ffmpeg_go.KwArgs{"map_chapters": "1", "codec": "copy", "f": "mp4"}).
+		OverWriteOutput()
+
+	// check if verbose output should be shown
+	if config.VerboseTranscode {
+		embedCmd = embedCmd.ErrorToStdOut()
+	}
+	if err := embedCmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // SplitSingleFile splits single file into chunks for later transcoding
 func SplitSingleFile(config *Config) error {
 	// check for multiple files

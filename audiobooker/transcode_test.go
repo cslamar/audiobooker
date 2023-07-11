@@ -153,3 +153,34 @@ func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 	err = SplitSingleFile(&c3)
 	assert.Error(suite.T(), err)
 }
+
+func (suite *TranscodeTestSuite) TestEmbedChapters() {
+	var err error
+	TestChapterMetaFile := filepath.Join(TestDataRoot, "misc", "chapters.ini")
+
+	// initial fail case with no source
+	err = EmbedChapters(Config{})
+	assert.Error(suite.T(), err)
+
+	// success case 1
+	chapterFile, err := os.Open(TestChapterMetaFile)
+	assert.Nil(suite.T(), err)
+
+	c1 := Config{
+		ChaptersFile:     chapterFile,
+		OutputFile:       "ut-embed-chapters.m4b",
+		OutputPath:       filepath.Join(suite.ScratchPath, "ut-embed-chapters"),
+		SourceFilesPath:  filepath.Join(TestDataRoot, "misc", "60-min-book.m4b"),
+		VerboseTranscode: true,
+	}
+
+	err = EmbedChapters(c1)
+	assert.Nil(suite.T(), err)
+
+	// Fail case where output path is invalid (read-only in this case)
+	c2 := c1
+	c2.OutputPath = "/dev/null"
+	err = EmbedChapters(c2)
+	assert.Error(suite.T(), err)
+
+}

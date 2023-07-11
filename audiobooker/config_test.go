@@ -155,3 +155,41 @@ func (suite *ConfigTestSuite) TestSetOutputFilename() {
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), filepath.Join(suite.ScratchPath, "output/Some Author/1980/1980: Some Author-Some Title.m4b"), filepath.Join(c2.OutputPath, c2.OutputFile))
 }
+
+func (suite *ConfigTestSuite) TestCheckForSourceFile() {
+	var err error
+	testBookDir := filepath.Join(TestDataRoot, "misc")
+	testBookFile := filepath.Join(testBookDir, "60-min-book.m4b")
+
+	// bad path test
+	badPath := "./asdf"
+	c1 := Config{}
+	_, err = c1.CheckForSourceFile(badPath)
+	assert.Error(suite.T(), err)
+
+	// regular file test
+	c2 := Config{}
+	regularFileSuccess, err := c2.CheckForSourceFile(testBookFile)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), filepath.Join(testBookFile), regularFileSuccess)
+
+	// directory files successful test
+	c3 := Config{
+		sourceFiles: []string{"60-min-book.m4b"},
+	}
+	dirFilesSuccess, err := c3.CheckForSourceFile(testBookDir)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), dirFilesSuccess, "60-min-book.m4b")
+
+	// directory files too many files test
+	c4 := Config{
+		sourceFiles: []string{"file1.m4b", "file2.m4b"},
+	}
+	_, err = c4.CheckForSourceFile(testBookDir)
+	assert.Error(suite.T(), err)
+
+	// directory files no files test
+	c5 := Config{}
+	_, err = c5.CheckForSourceFile(testBookDir)
+	assert.Error(suite.T(), err)
+}
