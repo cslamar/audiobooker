@@ -1,6 +1,13 @@
 version: '3'
 
 tasks:
+  build-test-data-env:
+    desc: "Build the container with the test environment"
+    dir: test-data/files/
+    cmds:
+      - docker build -t ghcr.io/cslamar/audiobooker-test-data:latest .
+      - docker push ghcr.io/cslamar/audiobooker-test-data:latest
+
   clean:
     desc: "Clean temporary directories"
     cmds:
