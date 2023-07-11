@@ -526,3 +526,30 @@ func (suite *BookTestSuite) TestGenerateChaptersTemplate() {
 	err = b2.GenerateChaptersTemplate(c2)
 	assert.Nil(suite.T(), err)
 }
+
+func (suite *BookTestSuite) TestFormatDescription() {
+	var err error
+
+	// test file pointers
+	invalidFile, _ := os.Open("/dev/asdf")
+	emptyFile, _ := os.Open(filepath.Join(TestDataRoot, "misc", "empty.txt"))
+	descriptionFile, _ := os.Open(filepath.Join(TestDataRoot, "misc", "description.txt"))
+
+	// fail case invalid file
+	c1 := Config{descriptionFile: invalidFile}
+	b1 := Book{}
+	err = b1.formatDescription(c1)
+	assert.Error(suite.T(), err)
+
+	// warning case empty file
+	c2 := Config{descriptionFile: emptyFile}
+	b2 := Book{}
+	err = b2.formatDescription(c2)
+	assert.Nil(suite.T(), err)
+
+	// success case
+	c3 := Config{descriptionFile: descriptionFile}
+	b3 := Book{}
+	err = b3.formatDescription(c3)
+	assert.Nil(suite.T(), err)
+}

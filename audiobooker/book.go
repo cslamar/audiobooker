@@ -85,7 +85,7 @@ func (b *Book) formatDescription(config Config) error {
 	// read in description file content
 	data, err := io.ReadAll(config.descriptionFile)
 	if err != nil {
-		log.Errorln("error reading description file:", config.descriptionFile.Name())
+		log.Errorln("error reading description file")
 		return err
 	}
 
