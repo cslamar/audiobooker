@@ -17,7 +17,9 @@ tasks:
   cli-docs:
     desc: "Generate auto-generated cli repository documentation"
     cmds:
-      - go run docs/generate-docs.go
+      - cmd: echo "generating cli docs"
+      - cmd: go run docs/generate-docs.go
+    silent: true
 
   test-local:
     desc: "Run tests locally with test directories"
