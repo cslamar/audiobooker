@@ -72,8 +72,7 @@ func (suite *ConfigTestSuite) TearDownSuite() {
 func (suite *ConfigTestSuite) TestNewAndCleanup() {
 	var err error
 	config := Config{
-		ScratchFilesPath: suite.ScratchPath,
-		SourceFilesPath:  suite.ScratchPath,
+		SourceFilesPath: suite.ScratchPath,
 	}
 
 	// test config New
