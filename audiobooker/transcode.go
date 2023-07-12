@@ -141,11 +141,28 @@ func SplitSingleFile(config *Config) error {
 // Bind apply metadata and output m4b file
 func Bind(config Config, book Book) error {
 	var err error
+	var tempOutFile *os.File
+
 	// Create a temporary output file for manipulation
-	tempOutFile, err := os.CreateTemp(config.scratchDir, "tempOutFile")
+	tempOutFile, err = os.CreateTemp(config.scratchDir, "tempOutFile")
 	if err != nil {
 		return err
 	}
+
+	if len(config.sourceFiles) == 1 {
+		//config.preOutputFilePath = config.sourceFiles[0]
+		// check if the source file is a directory or regular file, return single element if it's a directory
+		config.preOutputFilePath, err = config.CheckForSourceFile(config.SourceFilesPath)
+		if err != nil {
+			return err
+		}
+
+		// Create full output path
+		if err := os.MkdirAll(config.OutputPath, 0755); err != nil {
+			return err
+		}
+	}
+
 	// run general bind operation
 	bindCmd := ffmpeg_go.Input(config.ChaptersFile.Name(), ffmpeg_go.KwArgs{"i": config.preOutputFilePath}).
 		Output(tempOutFile.Name(), ffmpeg_go.KwArgs{"map_metadata": 1, "codec": "copy", "f": "mp4"}).
