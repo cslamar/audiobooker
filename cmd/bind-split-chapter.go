@@ -91,18 +91,21 @@ The other way that split-chapters can be used is if the existing file already ha
 
 		// process the chapter split and generate a chapters metadata file only, no encoding
 		if generateChapters {
-			log.Infoln("generating static chapter metadata")
+			log.Infoln("Generating/Embedding static chapters and metadata")
 			if err := book.GenerateStaticChapters(config, chapterLength, config.SourceFilesPath); err != nil {
 				return err
 			}
-			// generate the chapters ini file
-			if err := book.GenerateChaptersTemplate(config); err != nil {
+
+			// generate chapters metadata
+			if err := book.GenerateMetaTemplate(config); err != nil {
+				log.Errorln(err)
 				return err
 			}
+
 			log.Debugln(book.Chapters)
 
-			// embed the chapters file in a new file
-			if err := audiobooker.EmbedChapters(config); err != nil {
+			// embed metadata
+			if err := audiobooker.Bind(config, book); err != nil {
 				log.Errorln(err)
 				return err
 			}
