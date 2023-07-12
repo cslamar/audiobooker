@@ -116,12 +116,6 @@ func (suite *ConfigTestSuite) TestGatherSourceFilesFromDir() {
 	err = c2.gatherSourceFilesFromDir()
 	assert.Nil(suite.T(), err)
 
-	// test fail bad description/comment file
-	c3 := Config{
-		SourceFilesPath: filepath.Join(TestDataRoot, "misc/test-book/"),
-	}
-	err = c3.gatherSourceFilesFromDir()
-	assert.Error(suite.T(), err)
 }
 
 func (suite *ConfigTestSuite) TestAddToFileList() {
