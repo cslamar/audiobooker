@@ -72,8 +72,7 @@ func (suite *ConfigTestSuite) TearDownSuite() {
 func (suite *ConfigTestSuite) TestNewAndCleanup() {
 	var err error
 	config := Config{
-		ScratchFilesPath: suite.ScratchPath,
-		SourceFilesPath:  suite.ScratchPath,
+		SourceFilesPath: suite.ScratchPath,
 	}
 
 	// test config New
@@ -104,10 +103,19 @@ func (suite *ConfigTestSuite) TestParseConfig() {
 }
 
 func (suite *ConfigTestSuite) TestGatherSourceFilesFromDir() {
-	// test failure
-	config := Config{}
-	err := config.gatherSourceFilesFromDir()
+	var err error
+	// test failure bad source path
+	c1 := Config{}
+	err = c1.gatherSourceFilesFromDir()
 	assert.Error(suite.T(), err)
+
+	// test success
+	c2 := Config{
+		SourceFilesPath: filepath.Join(TestDataRoot, "misc/Test Author/Test Book/Title One/"),
+	}
+	err = c2.gatherSourceFilesFromDir()
+	assert.Nil(suite.T(), err)
+
 }
 
 func (suite *ConfigTestSuite) TestAddToFileList() {
