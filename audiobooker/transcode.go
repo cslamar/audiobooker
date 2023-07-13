@@ -70,9 +70,14 @@ func SplitSingleFile(config *Config) error {
 
 	// determine split length depending on file duration
 	splitLength := 0
-	if fileData.Format.Duration() < (10 * time.Minute) {
+	if fileData.Format.Duration() >= (2 * time.Hour) {
+		// if the file duration is over 2 hours, split every 120 minutes
+		splitLength = 60 * 60 * 2
+	} else if fileData.Format.Duration() < (10 * time.Minute) {
+		// if the file duration is under 10 minutes, split every 5 minute
 		splitLength = 5 * 60
 	} else {
+		// default to splitting every 10 minutes
 		splitLength = 10 * 60
 	}
 
