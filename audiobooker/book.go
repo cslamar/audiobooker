@@ -22,11 +22,6 @@ import (
 //go:embed metadata.ini.tmpl
 var metadataTemplate embed.FS
 
-// TODO there may be a better way of doing this inside the metadata template file with conditionals
-
-//go:embed chapters.ini.tmpl
-var chaptersTemplate embed.FS
-
 // Book top level construct of book
 type Book struct {
 	Author      string
