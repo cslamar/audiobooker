@@ -479,54 +479,6 @@ func (suite *BookTestSuite) TestWriteTags() {
 
 }
 
-func (suite *BookTestSuite) TestGenerateChaptersTemplate() {
-	var err error
-
-	// template parse failure
-	c1 := Config{}
-	b1 := Book{}
-	err = b1.GenerateChaptersTemplate(c1)
-	assert.Error(suite.T(), err)
-
-	// Success case
-	chapterFile, err := os.Create(filepath.Join(suite.ScratchPath, "test-chapters.ini"))
-	if err != nil {
-		panic(err)
-	}
-	chapters1 := make([]*Chapter, 3)
-	chapters1[0] = &Chapter{
-		LengthMs: 1500000,
-		StartMs:  0,
-		EndMs:    1500000,
-		Number:   0,
-		Title:    "Chapter 1",
-	}
-	chapters1[1] = &Chapter{
-		LengthMs: 1500000,
-		StartMs:  1500000,
-		EndMs:    3000000,
-		Number:   1,
-		Title:    "Chapter 2",
-	}
-	chapters1[2] = &Chapter{
-		LengthMs: 1500000,
-		StartMs:  3000000,
-		EndMs:    4500000,
-		Number:   2,
-		Title:    "Chapter 3",
-	}
-
-	c2 := Config{
-		ChaptersFile: chapterFile,
-	}
-	b2 := Book{
-		Chapters: chapters1,
-	}
-
-	err = b2.GenerateChaptersTemplate(c2)
-	assert.Nil(suite.T(), err)
-}
-
 func (suite *BookTestSuite) TestFormatDescription() {
 	var err error
 
