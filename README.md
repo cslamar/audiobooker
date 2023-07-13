@@ -8,7 +8,7 @@ Golang audiobook creation tool with support for tagging based on directory struc
 
 ### Installation Requirements
 
-* ffmpeg (developed against `5.1.x` and `4.1.x`)
+* ffmpeg (developed against `6.0` and `5.1.x`)
 
 ### Build Requirements
 

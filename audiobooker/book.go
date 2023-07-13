@@ -22,11 +22,6 @@ import (
 //go:embed metadata.ini.tmpl
 var metadataTemplate embed.FS
 
-// TODO there may be a better way of doing this inside the metadata template file with conditionals
-
-//go:embed chapters.ini.tmpl
-var chaptersTemplate embed.FS
-
 // Book top level construct of book
 type Book struct {
 	Author      string
@@ -61,17 +56,6 @@ func (b *Book) GenerateMetaTemplate(config Config) error {
 	if err != nil {
 		return err
 	}
-
-	if err := tmpl.Execute(config.ChaptersFile, b); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// GenerateChaptersTemplate generates the chapter ini file from Book chapters slice
-func (b *Book) GenerateChaptersTemplate(config Config) error {
-	tmpl, _ := template.ParseFS(chaptersTemplate, "chapters.ini.tmpl")
 
 	if err := tmpl.Execute(config.ChaptersFile, b); err != nil {
 		return err
