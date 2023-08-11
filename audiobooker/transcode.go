@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
 	"gopkg.in/vansante/go-ffprobe.v2"
-	"math"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -37,7 +37,6 @@ func Combine(config Config) error {
 
 // SplitSingleFile splits single file into chunks for later transcoding
 func SplitSingleFile(config *Config) error {
-	// check for multiple files
 	if len(config.sourceFiles) > 1 {
 		return errors.New("may only have one source file for pre-splitting for now")
 	}
@@ -81,35 +80,53 @@ func SplitSingleFile(config *Config) error {
 		splitLength = 10 * 60
 	}
 
-	// calculate the number of seconds and the number of splits
-	numSeconds := int(math.Ceil(fileData.Format.DurationSeconds))
-	numFiles := numSeconds / splitLength
-	if (numSeconds % splitLength) != 0 {
-		// if any left over, increase the number of files by one
-		numFiles++
+	outFile := filepath.Join(splitDir, fmt.Sprintf("tc-part-%%03d%s", fileExt))
+
+	splitCmd := ffmpeg_go.Input(srcFile).
+		Output(outFile, ffmpeg_go.KwArgs{
+			"f":                "segment",
+			"segment_time":     splitLength,
+			"c":                "copy",
+			"reset_timestamps": 1,
+		}).
+		OverWriteOutput()
+	if config.VerboseTranscode {
+		splitCmd = splitCmd.ErrorToStdOut()
 	}
 
-	// do the split
-	splitFiles := make([]string, numFiles)
-	timeTracker := 0
-	for i := 0; i < numFiles; i++ {
-		outFile := filepath.Join(splitDir, fmt.Sprintf("tc-part-%d%s", i+1, fileExt))
-		splitCmd := ffmpeg_go.Input(srcFile).
-			Output(outFile, ffmpeg_go.KwArgs{"acodec": "copy", "vn": "", "ss": timeTracker, "t": splitLength}).
-			OverWriteOutput()
-		// check if verbose output should be shown
-		if config.VerboseTranscode {
-			splitCmd = splitCmd.ErrorToStdOut()
-		}
-		err := splitCmd.Run()
+	log.Infoln("Performing file split, this may take a minute depending on the size of the source file.")
+	if err := splitCmd.Run(); err != nil {
+		log.Errorln(err)
+		return err
+	}
+
+	partFiles := make([]string, 0)
+	err = filepath.WalkDir(splitDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			log.Errorln("error doing the split!  The files may not be right:", err)
+			return err
 		}
-		timeTracker += splitLength
-		splitFiles[i] = outFile
+		if !d.IsDir() {
+			pFile, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer pFile.Close()
+			pData, err := ffprobe.ProbeURL(context.Background(), pFile.Name())
+			if err != nil {
+				return err
+			}
+			if pData.Format.Duration() > (1 * time.Second) {
+				partFiles = append(partFiles, path)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
 	}
 
-	config.sourceFiles = splitFiles
+	config.sourceFiles = partFiles
 
 	return nil
 }

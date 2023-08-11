@@ -98,7 +98,7 @@ func (c *Config) New() error {
 		c.ScratchFilesPath = "."
 	}
 
-	// check if ENV jobs is greater than the value passed in
+	// TODO check if ENV jobs is greater than the value passed in
 
 	// create temporary scratch directory
 	c.scratchDir, err = os.MkdirTemp(c.ScratchFilesPath, "scratch-dir")
