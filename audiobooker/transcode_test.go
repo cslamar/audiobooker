@@ -118,6 +118,14 @@ func (suite *TranscodeTestSuite) TestBind() {
 func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 	var err error
 
+	cleanSplitDir := func() {
+		// clean up
+		err = os.RemoveAll(filepath.Join(suite.ScratchPath, "split"))
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+
 	// successful split on exact hour file
 	c1 := Config{
 		scratchDir:  suite.ScratchPath,
@@ -128,11 +136,7 @@ func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 6, len(c1.sourceFiles))
 
-	// clean up
-	err = os.RemoveAll(filepath.Join(suite.ScratchPath, "split"))
-	if err != nil {
-		log.Errorln(err)
-	}
+	cleanSplitDir()
 
 	// successful on four minute file
 	c2 := Config{
@@ -144,6 +148,9 @@ func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 2, len(c2.sourceFiles))
 
+	// clean up
+	cleanSplitDir()
+
 	// failure on extra files
 	c3 := Config{
 		scratchDir:  suite.ScratchPath,
@@ -152,4 +159,31 @@ func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 
 	err = SplitSingleFile(&c3)
 	assert.Error(suite.T(), err)
+
+	// success on splitting multi-hour-file into even parts
+	c4 := Config{
+		scratchDir:       suite.ScratchPath,
+		sourceFiles:      []string{filepath.Join(TestDataRoot, "misc/2-hour.m4a")},
+		VerboseTranscode: true,
+	}
+
+	err = SplitSingleFile(&c4)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), 1, len(c4.sourceFiles))
+
+	// clean up
+	cleanSplitDir()
+
+	// success on splitting multi-hour-file into odd parts
+	c5 := Config{
+		scratchDir:  suite.ScratchPath,
+		sourceFiles: []string{filepath.Join(TestDataRoot, "misc/3-hour.m4a")},
+	}
+
+	err = SplitSingleFile(&c5)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), 2, len(c5.sourceFiles))
+
+	// clean up
+	cleanSplitDir()
 }
