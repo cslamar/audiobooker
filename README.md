@@ -12,7 +12,7 @@ Golang audiobook creation tool with support for tagging based on directory struc
 
 ### Build Requirements
 
-* Go (developed using `1.20`)
+* Go (developed using `1.21`)
 
 ## Operations
 

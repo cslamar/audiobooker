@@ -1,6 +1,7 @@
 package audiobooker
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -186,4 +187,62 @@ func (suite *TranscodeTestSuite) TestSplitSingleFile() {
 
 	// clean up
 	cleanSplitDir()
+}
+
+func (suite *TranscodeTestSuite) TestTranscodeWithMarkers() {
+	var err error
+
+	cleanSplitDir := func() {
+		// clean up
+		err = os.RemoveAll(filepath.Join(suite.ScratchPath, "split"))
+		if err != nil {
+			log.Errorln(err)
+		}
+	}
+
+	// test with aac encoded file
+	c1 := Config{
+		sourceFiles: []string{filepath.Join(TestDataRoot, "misc", "60-min.m4a")},
+		scratchDir:  suite.ScratchPath,
+	}
+	points1 := []MarkerPoint{
+		{
+			Duration: 3,
+			End:      60,
+		},
+		{
+			Duration: 3,
+			End:      120,
+		},
+	}
+
+	err = TranscodeWithMarkers(&c1, points1)
+	assert.Nil(suite.T(), err)
+	files, err := filepath.Glob(fmt.Sprintf("%s/split/*.aac", suite.ScratchPath))
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), 2, len(files))
+
+	cleanSplitDir()
+
+	// test with mp3 encoded file
+	c2 := Config{
+		sourceFiles: []string{filepath.Join(TestDataRoot, "misc", "tagged.mp3")},
+		scratchDir:  suite.ScratchPath,
+	}
+	points2 := []MarkerPoint{
+		{
+			Duration: 3,
+			End:      60,
+		},
+		{
+			Duration: 3,
+			End:      120,
+		},
+	}
+
+	err = TranscodeWithMarkers(&c2, points2)
+	assert.Nil(suite.T(), err)
+	files, err = filepath.Glob(fmt.Sprintf("%s/split/*.aac", suite.ScratchPath))
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), 2, len(files))
 }
