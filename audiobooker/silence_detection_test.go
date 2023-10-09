@@ -38,17 +38,21 @@ func (suite *SilenceDetectionTestSuite) TestGenerateVolMarkers() {
 	file := filepath.Join(TestDataRoot, "misc", "3and5-sec-silence.mp3")
 
 	// Find the 3 and 5 second silence in track
-	points1, err := GenerateVolMarkers(file, 3, 30)
+	points1, err := GenerateVolMarkers(file, 3, -30)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 2, len(points1))
 
 	// Find the 5 seconds silence in the track
-	points2, err := GenerateVolMarkers(file, 4.5, 30)
+	points2, err := GenerateVolMarkers(file, 4.5, -30)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 1, len(points2))
 
 	// Find no silence point in track
-	points3, err := GenerateVolMarkers(file, 10, 30)
+	points3, err := GenerateVolMarkers(file, 10, -30)
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 0, len(points3))
+
+	// Error case where dbFloor is positive
+	_, err = GenerateVolMarkers(file, 10, 30)
+	assert.Error(suite.T(), err)
 }

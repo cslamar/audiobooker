@@ -1,6 +1,7 @@
 package audiobooker
 
 import (
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
@@ -24,9 +25,12 @@ func (p MarkerPoint) ParseEnd() float64 {
 // GenerateVolMarkers parses file for silence detection marker points
 func GenerateVolMarkers(filename string, duration float64, dbFloor int) ([]MarkerPoint, error) {
 	log.Debugln("generating silence detection marker points")
+	if dbFloor >= 0 {
+		return nil, errors.New("dbFloor MUST be less than 0")
+	}
 
 	//cmd := exec.Command("ffmpeg", "-i", filename, "-af", "silencedetect=noise=-30dB:d=3.5", "-f", "null", "-")
-	cmd := exec.Command("ffmpeg", "-i", filename, "-af", fmt.Sprintf("silencedetect=noise=-%ddB:d=%f", dbFloor, duration), "-f", "null", "-")
+	cmd := exec.Command("ffmpeg", "-i", filename, "-af", fmt.Sprintf("silencedetect=noise=%ddB:d=%f", dbFloor, duration), "-f", "null", "-")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
@@ -53,5 +57,6 @@ func GenerateVolMarkers(filename string, duration float64, dbFloor int) ([]Marke
 		}
 	}
 
+	log.Debugln("marker points found:", len(markers))
 	return markers, nil
 }
