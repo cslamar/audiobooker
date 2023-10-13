@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -29,7 +30,6 @@ func GenerateVolMarkers(filename string, duration float64, dbFloor int) ([]Marke
 		return nil, errors.New("dbFloor MUST be less than 0")
 	}
 
-	//cmd := exec.Command("ffmpeg", "-i", filename, "-af", "silencedetect=noise=-30dB:d=3.5", "-f", "null", "-")
 	cmd := exec.Command("ffmpeg", "-i", filename, "-af", fmt.Sprintf("silencedetect=noise=%ddB:d=%f", dbFloor, duration), "-f", "null", "-")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -37,15 +37,18 @@ func GenerateVolMarkers(filename string, duration float64, dbFloor int) ([]Marke
 	}
 	markers := make([]MarkerPoint, 0)
 	volLines := strings.Split(string(output), "\n")
+	re := regexp.MustCompile("silence_end.*")
 	for _, line := range volLines {
-		if strings.Contains(line, "silence_end") {
-			log.Info(line)
-			cols := strings.Split(line, " ")
-			endPoint, err := strconv.ParseFloat(cols[4], 32)
+		lineCapture := re.FindString(line)
+		if lineCapture != "" {
+			log.Debugln("raw line:", line)
+			log.Debugln("parsed line:", lineCapture)
+			cols := strings.Split(lineCapture, " ")
+			endPoint, err := strconv.ParseFloat(cols[1], 32)
 			if err != nil {
 				return nil, err
 			}
-			silenceDuration, err := strconv.ParseFloat(cols[7], 32)
+			silenceDuration, err := strconv.ParseFloat(cols[4], 32)
 			if err != nil {
 				return nil, err
 			}
