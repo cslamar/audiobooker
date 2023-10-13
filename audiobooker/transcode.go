@@ -347,3 +347,62 @@ func TranscodeSourceFiles(config *Config) error {
 
 	return nil
 }
+
+// shouldTranscode returns a bool if transcoding is needed
+func shouldTranscode(stream *ffprobe.Stream) bool {
+	if stream.CodecName == "aac" {
+		return false
+	}
+	return true
+}
+
+// TranscodeWithMarkers generates individual output files from a single file listed in MarkerPoint slice
+func TranscodeWithMarkers(config *Config, points []MarkerPoint) error {
+	log.Debugln("transcoding using marker points")
+	if len(config.sourceFiles) > 1 {
+		return errors.New("may only have one source file for pre-splitting for now")
+	}
+
+	// parse the source file
+	srcFile := config.sourceFiles[0]
+	sourceFileMeta, err := ffprobe.ProbeURL(context.Background(), srcFile)
+	if err != nil {
+		return err
+	}
+
+	// determine if codec transcoding is required
+	var audioCodec string
+	if shouldTranscode(sourceFileMeta.FirstAudioStream()) {
+		// if it does, use aac
+		audioCodec = "aac"
+	} else {
+		// if it's already aac, then just use copy
+		audioCodec = "copy"
+	}
+
+	// create temporary directory for splitting single files
+	splitDir := filepath.Join(config.scratchDir, "split")
+	if err := os.Mkdir(splitDir, 0755); err != nil {
+		return err
+	}
+
+	// start transcode from MarkerPoints
+	startingPoint := float64(0)
+	for idx := 0; idx < len(points); idx++ {
+		endMark := fmt.Sprintf("%f", points[idx].ParseEnd())
+		outFile := filepath.Join(splitDir, fmt.Sprintf("Track-%03d.aac", idx+1))
+		cmd := ffmpeg_go.Input(srcFile).
+			Output(outFile, ffmpeg_go.KwArgs{
+				"ss":  fmt.Sprintf("%f", startingPoint),
+				"c:a": audioCodec,
+				"to":  endMark,
+			}).OverWriteOutput().ErrorToStdOut()
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+		// if the command ran successfully, update the starting point to the end of the previous
+		startingPoint = points[idx].ParseEnd()
+	}
+
+	return nil
+}

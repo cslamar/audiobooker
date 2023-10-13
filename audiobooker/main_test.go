@@ -88,4 +88,5 @@ func TestSuite(t *testing.T) {
 	suite.Run(t, new(PathPatternTestSuite))
 	suite.Run(t, new(TrackTestSuite))
 	suite.Run(t, new(TranscodeTestSuite))
+	suite.Run(t, new(SilenceDetectionTestSuite))
 }
