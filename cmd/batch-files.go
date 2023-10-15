@@ -82,6 +82,7 @@ var batchFilesCmd = &cobra.Command{
 		}
 
 		for _, dir := range bookDirs {
+			startTime := time.Now()
 			// create config struct and parse ENV variables for configs
 			config := audiobooker.Config{}
 			defer config.Cleanup()
@@ -171,6 +172,7 @@ var batchFilesCmd = &cobra.Command{
 				return err
 			}
 
+			notifyFinishedBook(book, startTime)
 		}
 
 		fmt.Println("Entire process took:", time.Now().Sub(processStart))
