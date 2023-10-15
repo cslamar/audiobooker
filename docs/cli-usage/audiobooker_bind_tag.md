@@ -19,11 +19,13 @@ audiobooker bind tag [flags]
 ### Options inherited from parent commands
 
 ```
+      --alert                       enable audible pop-up notifications
       --config string               config file (default is $HOME/.audiobooker.yaml)
       --debug                       debugging verbose output
       --dry-run                     Run parsing commands, without converting/binding, and display expected output
   -f, --file-pattern string         The output filename, can be a combination of literal values and patterns
   -j, --jobs int                    The number of concurrent transcoding process to run for conversion (don't exceed your cpu count) (default 1)
+      --notify                      enable pop-up notifications
   -o, --output-directory string     The output directory for the final directory, can be combination of absolute values and path patterns
   -p, --path-pattern string         The pattern for metadata picked up via paths
       --scratch-files-path string   The location to generate the scratch directory
