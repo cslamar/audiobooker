@@ -1,11 +1,13 @@
 package audiobooker
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/vansante/go-ffprobe.v2"
+	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -76,11 +78,7 @@ func (c *cueEntry) toChapter() Chapter {
 
 // parseFromCueTag creates Chapter object from embedded CUESHEET tag
 func parseFromCueTag(config Config) ([]cueEntry, error) {
-	f, err := os.Open(config.sourceFiles[0])
-	if err != nil {
-		return nil, err
-	}
-	fileMetadata, err := ffprobe.ProbeURL(context.Background(), f.Name())
+	fileMetadata, err := getFileMetadata(config.sourceFiles[0])
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +100,43 @@ func parseFromCueTag(config Config) ([]cueEntry, error) {
 
 	log.Debugln(rawCueSheet)
 
+	return parseCueSheet(rawCueSheet, fullTrackMs)
+}
+
+// parseFromCueFile creates cueEntry slice from CUE SHEET file
+func parseFromCueFile(config Config, cueFile string) ([]cueEntry, error) {
+	if filepath.Ext(cueFile) != ".cue" {
+		return nil, errors.New("must end with .cue")
+	}
+
+	fileMetadata, err := getFileMetadata(config.sourceFiles[0])
+	if err != nil {
+		return nil, err
+	}
+
+	trackSeconds, err := strconv.ParseFloat(fileMetadata.FirstAudioStream().Duration, 6)
+	if err != nil {
+		return nil, err
+	}
+	fullTrackMs := int64(trackSeconds * 1000)
+
+	f, err := os.Open(cueFile)
+	if err != nil {
+		return nil, err
+	}
+
+	rawCueSheet, err := io.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Debugln(string(rawCueSheet))
+
+	return parseCueSheet(string(rawCueSheet), fullTrackMs)
+}
+
+// parseCueSheet parses raw CUE sheet to be converted for later Chapter conversion
+func parseCueSheet(rawCueSheet string, fullTrackMs int64) ([]cueEntry, error) {
 	// prepare for cue entry parsing
 	var entry *cueEntry
 	entries := make([]cueEntry, 0)

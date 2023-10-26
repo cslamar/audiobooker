@@ -1,6 +1,7 @@
 package audiobooker
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/vansante/go-ffprobe.v2"
@@ -10,10 +11,11 @@ import (
 type ChapterSuite struct {
 	suite.Suite
 	TestChapter Chapter
+	TestCueFile string
 }
 
 func (suite *ChapterSuite) SetupSuite() {
-
+	suite.TestCueFile = filepath.Join(TestDataRoot, "misc", "test.cue")
 }
 
 func (suite *ChapterSuite) TearDownSuite() {
@@ -76,4 +78,24 @@ func (suite *ChapterSuite) TestParseFromCueTag() {
 	_, err = parseFromCueTag(c2)
 	// should return a tag not found error
 	assert.Equal(suite.T(), ffprobe.ErrTagNotFound, err)
+}
+
+func (suite *ChapterSuite) TestParseFromCueFile() {
+	var err error
+	c1 := Config{
+		sourceFiles: []string{filepath.Join(TestDataRoot, "misc", "cue.mp3")},
+	}
+
+	// parse cue sheet
+	cues1, err := parseFromCueFile(c1, suite.TestCueFile)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), 10, len(cues1))
+
+	// test fail on bad extension
+	_, err = parseFromCueFile(c1, filepath.Join(TestDataRoot, "misc", "cue.mp3"))
+	if assert.Error(suite.T(), err) {
+		assert.Equal(suite.T(), err, errors.New("must end with .cue"))
+	}
+
+	// test
 }
