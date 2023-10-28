@@ -26,9 +26,11 @@ audiobooker bind [flags]
 ### Options inherited from parent commands
 
 ```
+      --alert           enable audible pop-up notifications
       --config string   config file (default is $HOME/.audiobooker.yaml)
       --debug           debugging verbose output
       --dry-run         Run parsing commands, without converting/binding, and display expected output
+      --notify          enable pop-up notifications
   -v, --verbose         verbose output
 ```
 

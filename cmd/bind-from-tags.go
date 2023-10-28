@@ -88,7 +88,7 @@ var bindFromTagsCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Entire process took:", time.Now().Sub(processStart))
+		notifyFinishedBook(book, processStart)
 		fmt.Println("fin.")
 
 		return nil

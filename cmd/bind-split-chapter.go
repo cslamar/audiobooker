@@ -158,7 +158,7 @@ The other way that split-chapters can be used is if the existing file already ha
 			return err
 		}
 
-		fmt.Println("Entire process took:", time.Now().Sub(processStart))
+		notifyFinishedBook(book, processStart)
 		fmt.Println("fin.")
 
 		return nil

@@ -93,6 +93,8 @@ The other way that split-chapters can be used is if the existing file already ha
 		}
 
 		for _, dir := range bookDirs {
+			startTime := time.Now()
+
 			// create config struct and parse ENV variables for configs
 			config := audiobooker.Config{}
 			defer config.Cleanup()
@@ -224,6 +226,7 @@ The other way that split-chapters can be used is if the existing file already ha
 				return err
 			}
 
+			notifyFinishedBook(book, startTime)
 		}
 
 		fmt.Println("Entire process took:", time.Now().Sub(processStart))
