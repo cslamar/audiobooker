@@ -18,6 +18,8 @@ import (
 var cfgFile string
 var dryRun bool
 var Verbose = false
+var notify bool
+var alert bool
 var enableCaller = false
 
 // RootCmd represents the base command when called without any subcommands
@@ -35,14 +37,17 @@ var RootCmd = &cobra.Command{
 func Execute() {
 	err := RootCmd.Execute()
 	if err != nil {
+		notifyError(err)
 		os.Exit(1)
 	}
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	RootCmd.PersistentFlags().BoolVar(&alert, "alert", false, "enable audible pop-up notifications")
 	RootCmd.PersistentFlags().BoolVar(&enableCaller, "debug", false, "debugging verbose output")
 	RootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "Run parsing commands, without converting/binding, and display expected output")
+	RootCmd.PersistentFlags().BoolVar(&notify, "notify", false, "enable pop-up notifications")
 	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 
 	// Here you will define your flags and configuration settings.

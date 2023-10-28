@@ -9,10 +9,12 @@ The audiobook creator
 ### Options
 
 ```
+      --alert           enable audible pop-up notifications
       --config string   config file (default is $HOME/.audiobooker.yaml)
       --debug           debugging verbose output
       --dry-run         Run parsing commands, without converting/binding, and display expected output
   -h, --help            help for audiobooker
+      --notify          enable pop-up notifications
   -v, --verbose         verbose output
 ```
 

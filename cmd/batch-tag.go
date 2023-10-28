@@ -137,6 +137,7 @@ var batchTagCmd = &cobra.Command{
 			}
 
 			log.Debugln(book)
+			cmdNotify(fmt.Sprintf("Finished tagging %s - %s", book.Author, book.Title), "Finished")
 		}
 
 		fmt.Println("Entire process took:", time.Now().Sub(processStart))
